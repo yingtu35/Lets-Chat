@@ -1,0 +1,12 @@
+Each user has user_id, username, password, email, birthday
+The user can create a room or join a room or leave a room (if they are in a room).
+Each room has a name, a room code, and a host and password (optional), and many messages.
+Each room can have many users, each user can only join one room (currently)
+Each user in the room can send messages to the room.
+A message has a message content, and a datetime the message is created.
+Each message must be created by one user and belongs to one room. A room can have multiple messages.
+A user can have multiple messages.
+
+
+The user needs to be able to login.
+
