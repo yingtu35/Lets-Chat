@@ -1,86 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Home from './components/Home';
-import SignIn from './components/SignIn';
-import SignUp from './components/SignUp';
-import Users from './components/Users';
-import Rooms from './components/Rooms';
-import axios from 'axios'
+import Sign from './components/Sign';
+import Room from './components/Room';
+import UserServices from './services/UserServices';
+
+export const UserContext = createContext(null)
 
 function App() {
-  const [users, setUsers] = useState([]);
-  const [rooms, setRooms] = useState([]);
-  const [curUser, setCurUser] = useState({});
+  const [curUser, setCurUser] = useState(null);
+  const [curRoom, setCurRoom] = useState(null);
 
   const onLogInSuccess = (returnedUser) => {
     setCurUser(returnedUser);
   }
   
   const onLogOutSuccess = () => {
-    setCurUser({});
+    setCurUser(null);
   }
 
   const onSignUpSuccess = (returnedUser) => {
     setCurUser(returnedUser);
-    setUsers(users.concat(returnedUser));
   }
 
-  const onCreateRoomSuccess = (returnedRoom) => {
-    setRooms(rooms.concat(returnedRoom));
+  const onEnterRoomSuccess = (returnedRoom) => {
+    setCurRoom(returnedRoom);
+  }
+
+  const onLeaveRoomSuccess = () => {
+    setCurRoom(null);
   }
 
   useEffect(() => {
-    axios
-      .get("/users")
-      .then(response => {
-        const users = response.data;
-        setUsers(users);
-      })
-      .catch(error => {
-        console.log(error);
-      })
-    return () => {}
-  }, [])
-
-  useEffect(() => {
-    axios
-      .get("/rooms")
-      .then(response => {
-        const rooms = response.data;
-        setRooms(rooms);
-      })
-    return () => {}
-  }, [])
-  
-  // useEffect(() => {
-  //   fetch("/home")
-  //   .then(res => res.json())
-  //   .then((data) => {
-  //     setName(data.name);
-  //     setMsg(data.msg);
-    
-  //     return () => {}
-  //   })
-  // }, [])
+    if (curUser) {
+      UserServices
+        .UserInRoom(curUser.username)
+        .then(returnedRoom => {
+          console.log(returnedRoom);
+          setCurRoom(returnedRoom);
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
+  }, [curUser])
 
   return (
+    <UserContext.Provider value={curUser}>
     <div className="App">
-      <h2>Sign In</h2>
-      <SignIn onLogInSuccess={onLogInSuccess}/>
-      <h2>Sign Up</h2>
-      <SignUp onSignUpSuccess={onSignUpSuccess}/>
-      <h2>Home</h2>
-      <Home username={curUser.username} 
-            email={curUser.email}
-            onLogOutSuccess={onLogOutSuccess}
-            onCreateRoomSuccess={onCreateRoomSuccess} />
-      {/* <h2>All Users</h2>
-      <Users users={users} /> */}
-      <h2>All Rooms</h2>
-      <Rooms rooms={rooms} />
-      <div>
-
-      </div>
+      <Router>
+        <Routes>
+          <Route path="/" element={curRoom 
+                                  ? <Navigate to={"/room"} />
+                                  : curUser
+                                  ? <Home onLogOutSuccess={onLogOutSuccess}
+                                          onEnterRoomSuccess={onEnterRoomSuccess} />
+                                  : <Sign onLogInSuccess={onLogInSuccess} 
+                                            onSignUpSuccess={onSignUpSuccess}/>}/>
+          <Route path="/login" element={<Navigate to={"/"} />}/>
+          <Route path="/room" element={curRoom
+                                  ? <Room room={curRoom}
+                                          onLeaveRoomSuccess={onLeaveRoomSuccess} />
+                                  : <Navigate to={"/"} />} />
+        </Routes>
+      </Router>
     </div>
+    </UserContext.Provider>
   );
 }
 

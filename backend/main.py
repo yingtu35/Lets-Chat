@@ -189,6 +189,101 @@ def room():
     room = room.serialize()
     return room
 
+@app.route("/room-join", methods=['POST'])
+def join_room():
+    data = request.get_json()
+    username = data.get("username")
+    rid = data.get("rid")
+    if not username or not rid:
+        return Response("Invalid data form", status=400)
+    
+    # get the user
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response(f"User {username} not found", status=404)
+    # check if user is already in the room
+    if user.rid is not None:
+        return Response(f"Problem occurs joining room", status=400)
+    
+    # get the room
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        return Response(f"Room {rid} not found", status=404)
+    
+    # check if room reach maximum capacity
+    if room.num_users >= room.capacity:
+        return Response(f"Room {rid} already full", status=400)
+    user.rid = room.rid
+    room.num_users += 1
+    db.session.commit()
+    
+    room = room.serialize()
+    return room
+
+@app.route("/room-leave", methods=['POST'])
+def leave_room():
+    data = request.get_json()
+    username = data.get("username")
+    rid = data.get("rid")
+    if not username or not rid:
+        return Response("Invalid data form", status=400)
+    
+    # get the user
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response(f"User {username} not found", status=404)
+    # check if user is not in the correct room
+    if user.rid is None or user.rid != rid:
+        return Response(f"Problem occurs leaving room", status=400)
+    
+    # get the room
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        return Response(f"Room {rid} not found", status=404)
+    
+    # TODO: Testing on every branch
+    # user is not the host
+    if user.uid != room.host_uid:
+        user.rid = None
+        room.num_users -= 1
+    # user is host, assign another user as host
+    elif room.num_users > 1:
+        users = room.users
+        for user in users:
+            if user.uid != room.host_uid:
+                room.host_uid = user.uid
+                break
+        user.rid = None
+        room.num_users -= 1
+    # user is host, delete the whole room
+    else:
+        db.session.delete(room)
+    db.session.commit()
+    return Response(f"Leave Room Success", status=200)
+
+@app.route("/user-in-room", methods=['POST'])
+def user_in_room():
+    data = request.get_json()
+    username = data.get("username")
+    
+    # get the user
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response(f"User {username} not found", status=404)
+    if user.rid is None:
+        return Response(f"User not in any room", status=404)
+    
+    room = Room.query.filter(Room.rid == user.rid).first()
+    if not room:
+        return Response(f"Room {user.rid} not found", status=404)
+    
+    room = room.serialize()
+    return room
+    
+    
+        
+        
+
 # Running app
 if __name__ == '__main__':
     socketio.run(app, debug=True)

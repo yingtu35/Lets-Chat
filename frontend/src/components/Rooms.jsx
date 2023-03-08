@@ -12,18 +12,18 @@ const RoomFilter = ({query, setQuery}) => {
     )
 }
 
-const Room = ({room}) => {
+const RoomDisplay = ({room, handleJoinRoomClick}) => {
     return(
         <div>
             <p>Room: {room.name}</p>
             <p>Current Users: {room.num_users}/{room.capacity}</p>
             <p>Host Id:{room.host_uid}</p>
-            <button>Join room</button>
+            <button onClick={() => handleJoinRoomClick(room.rid)}>Join room</button>
         </div>
     )    
 }
 
-const Rooms = ({rooms}) => {
+const Rooms = ({rooms, handleJoinRoomClick}) => {
     const [roomQuery, setRoomQuery] = useState("");
 
     const roomToShow = rooms.filter(room => room.name.toLowerCase().includes(roomQuery.toLowerCase()))
@@ -31,7 +31,7 @@ const Rooms = ({rooms}) => {
     <>
     <RoomFilter query={roomQuery} setQuery={setRoomQuery} />
     <div>
-        {roomToShow.map(room => <Room key={room.rid} room={room} />)}
+        {roomToShow.map(room => <RoomDisplay key={room.rid} room={room} handleJoinRoomClick={handleJoinRoomClick} />)}
     </div>
     </>
     );
