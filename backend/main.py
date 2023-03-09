@@ -1,5 +1,5 @@
 from flask import Flask, request, Response, session, render_template
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import sqlalchemy as sa
@@ -9,10 +9,10 @@ import random
 db = SQLAlchemy()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
+CORS(app, origins=["http://localhost:3000", "ws://localhost:3000"], supports_credentials=True)
 app.config['SECRET_KEY'] = "wkvbh;riqnvrhfgfv"
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:dANiel_092021mysql@127.0.0.1:3306/letschat"
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 db.init_app(app)
 
@@ -130,7 +130,7 @@ def logout():
     username = session.get("username")
     if not username:
         return Response("Invalid logout", status=404)
-    session.pop("username")
+    session.pop("username", None)
     return Response("Log out success", status=200)
     
 
@@ -183,7 +183,7 @@ def rooms():
     return rooms
 
 @app.route("/room", methods=['POST'])
-def room():
+def create_room():
     data = request.get_json()
     username = data.get("username")
     room = data.get("room")
@@ -210,11 +210,12 @@ def room():
     user.rid = room.rid
     db.session.commit()
     
+    session["room"] = room.rid
     room = room.serialize()
     return room
 
 @app.route("/room-join", methods=['POST'])
-def join_room():
+def room_join():
     data = request.get_json()
     username = data.get("username")
     rid = data.get("rid")
@@ -241,11 +242,12 @@ def join_room():
     room.num_users += 1
     db.session.commit()
     
+    session["room"] = room.rid
     room = room.serialize()
     return room
 
 @app.route("/room-leave", methods=['POST'])
-def leave_room():
+def room_leave():
     data = request.get_json()
     username = data.get("username")
     rid = data.get("rid")
@@ -283,14 +285,14 @@ def leave_room():
     else:
         db.session.delete(room)
     db.session.commit()
+    session.pop("room", None)
     return Response(f"Leave Room Success", status=200)
 
 @app.route("/user-in-room", methods=['POST'])
 def user_in_room():
     username = session.get("username")
-    print(username)
-    # data = request.get_json()
-    # username = data.get("username")
+    if not username:
+        return Response(f"Invalid data form", status=404)
     
     # get the user
     user = User.query.filter(User.username == username).first()
@@ -299,15 +301,45 @@ def user_in_room():
     if user.rid is None:
         return Response(f"User not in any room", status=404)
     room = user.room
+    
+    session["room"] = room.rid
     room = room.serialize()
     return room
     
-    room = Room.query.filter(Room.rid == user.rid).first()
+@socketio.on("connect")
+def connect():
+
+    username = session.get("username")
+    rid = session.get("room")
+    if not username or not rid:
+        return
+    room = Room.query.filter(Room.rid == rid).first()
     if not room:
-        return Response(f"Room {user.rid} not found", status=404)
+        return
     
-    room = room.serialize()
-    return room
+    join_room(rid)
+    emit("message", {"username": username, "message": "has enter the room"}, to=rid)
+    # send({"username": username, "message": "has enter the room"}, to=room)
+    print(f"{username} join the room")
+    # TODO: Should add room number of users?
+
+@socketio.on("disconnect")
+def disconnect():
+    username = session.get("username")
+    rid = session.get("room")
+    if not username or not rid:
+        return
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        return
+    
+    leave_room(rid)
+    emit("message", {"username": username, "message": "has left the room"}, to=rid)
+    # send({"username": username, "message": "has left the room"}, to=room)
+    print(f"{username} leave the room")
+    # TODO: Should decrease room number of users?
+    
+    
 
 
     

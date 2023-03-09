@@ -1,8 +1,10 @@
-import { useState, useContext } from "react"
+import { useState, useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import RoomServices from "../services/RoomServices";
 import { io } from "socket.io-client"
+
+let socket;
 
 const Room = ({room, onLeaveRoomSuccess}) => {
     const navigate = useNavigate();
@@ -31,7 +33,17 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         setMessage('');
     }
 
-    // const socket = io();
+    useEffect(() => {
+        console.log(window.location.hostname);
+        socket = io();
+
+        socket.on("message", (data => {
+            console.log(data.username, data.message);
+        }))
+
+        return () => socket.disconnect(); 
+    }, [])
+    
 
 
     return (
