@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import RoomServices from "../services/RoomServices";
+import SignServices from "../services/SignServices";
 import Rooms from "./Rooms";
 
 const CreateRoomForm = ({roomName, onRoomNameChange, handleCreateRoomClick}) => {
@@ -59,7 +60,13 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
     };
 
     const handleLogOutClick = () => {
-        onLogOutSuccess();
+        SignServices
+            .LogOut()
+            .then(data => {
+                console.log(data);
+                onLogOutSuccess();
+            })
+            .catch(error => console.log(error));
     }
 
     useEffect(() => {

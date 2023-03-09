@@ -12,4 +12,9 @@ const SignUp = (email, username, password, birthday) => {
     return request.then(response => response.data)
 }
 
-export default {SignIn, SignUp}
+const LogOut = () => {
+    const request = axios.post('/logout');
+    return request.then(response => response.data);
+}
+
+export default {SignIn, SignUp, LogOut}

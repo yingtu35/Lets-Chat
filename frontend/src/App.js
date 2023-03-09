@@ -32,16 +32,28 @@ function App() {
   }
 
   useEffect(() => {
-    if (curUser) {
+    UserServices
+      .UserAuth()
+      .then(user => {
+        console.log(user);
+        setCurUser(user);
+      })
+      .catch(error =>{
+        console.log(error);
+      }) 
+  }, [])
+
+  useEffect(() => {
+    if (curUser){
       UserServices
-        .UserInRoom(curUser.username)
-        .then(returnedRoom => {
-          console.log(returnedRoom);
-          setCurRoom(returnedRoom);
-        })
-        .catch(error => {
-          console.log(error);
-        })
+      .UserInRoom()
+      .then(room => {
+        console.log(room);
+        setCurRoom(room);
+      })
+      .catch(error => {
+        console.log(error);
+      })
     }
   }, [curUser])
 

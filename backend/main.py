@@ -1,6 +1,7 @@
 from flask import Flask, request, Response, session, render_template
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 import sqlalchemy as sa
 from string import ascii_letters, digits
 import random
@@ -8,6 +9,7 @@ import random
 db = SQLAlchemy()
 
 app = Flask(__name__)
+CORS(app, origins=["http://localhost:3000"], supports_credentials=True)
 app.config['SECRET_KEY'] = "wkvbh;riqnvrhfgfv"
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:dANiel_092021mysql@127.0.0.1:3306/letschat"
 socketio = SocketIO(app)
@@ -98,6 +100,7 @@ with app.app_context():
 
 @app.route("/home")
 def home():
+    session["test"] = "cookie test"
     return {
         'name': "Ying Tu",
         'msg': "Hello World"
@@ -118,8 +121,18 @@ def signin():
     if not verify_password(password, user.hashed_password): 
         return Response({"error": "invalid username or password"}, status=404)
     
+    session["username"] = user.username
     user = user.serialize()
     return user
+
+@app.route('/logout', methods=["POST"])
+def logout():
+    username = session.get("username")
+    if not username:
+        return Response("Invalid logout", status=404)
+    session.pop("username")
+    return Response("Log out success", status=200)
+    
 
 @app.route('/signup', methods=["POST"])
 def signup():
@@ -151,6 +164,17 @@ def users():
     users = User.query.filter(User.uid <= 10).all()
     users = Serializer.serialize_list(users)
     return users
+
+@app.route("/user/auth", methods=['GET'])
+def user_auth():
+    username = session.get('username')
+    if not username:
+        return Response("Unauthenticated", status=404)
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response("Unauthenticated", status=404)
+    user = user.serialize()
+    return user
 
 @app.route("/rooms", methods=['GET'])
 def rooms():
@@ -263,8 +287,10 @@ def leave_room():
 
 @app.route("/user-in-room", methods=['POST'])
 def user_in_room():
-    data = request.get_json()
-    username = data.get("username")
+    username = session.get("username")
+    print(username)
+    # data = request.get_json()
+    # username = data.get("username")
     
     # get the user
     user = User.query.filter(User.username == username).first()
@@ -272,6 +298,9 @@ def user_in_room():
         return Response(f"User {username} not found", status=404)
     if user.rid is None:
         return Response(f"User not in any room", status=404)
+    room = user.room
+    room = room.serialize()
+    return room
     
     room = Room.query.filter(Room.rid == user.rid).first()
     if not room:
@@ -279,6 +308,8 @@ def user_in_room():
     
     room = room.serialize()
     return room
+
+
     
     
         

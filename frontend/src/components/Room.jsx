@@ -2,6 +2,7 @@ import { useState, useContext } from "react"
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import RoomServices from "../services/RoomServices";
+import { io } from "socket.io-client"
 
 const Room = ({room, onLeaveRoomSuccess}) => {
     const navigate = useNavigate();
@@ -10,6 +11,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
     const [roomName, setRoomName] = useState(room.name);
     const [users, setUsers] = useState([]);
     const [messages, setMessages] = useState([]);
+    const [message, setMessage] = useState('');
 
     const handleLeaveRoomClick = () => {
         RoomServices
@@ -24,13 +26,27 @@ const Room = ({room, onLeaveRoomSuccess}) => {
             })
     }
 
+    const sendMessage = () => {
+        console.log(message);
+        setMessage('');
+    }
+
+    // const socket = io();
+
+
     return (
         <>
         <div>
             <h2>{rid} {roomName}</h2>
             {messages.map(message => <p>User: some message</p>)}
-            <input />
-            <button>Send</button>
+            <div>
+            <input type="text" 
+                   rows="3"
+                   value={message} 
+                   placeholder="message"
+                   onChange = {(e) => setMessage(e.target.value)} />
+            <button onClick={sendMessage}>Send</button>
+            </div>
         </div>
         <button onClick={handleLeaveRoomClick}>Leave Room</button>
         <div>
