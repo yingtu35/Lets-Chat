@@ -292,7 +292,7 @@ def room_leave():
 def user_in_room():
     username = session.get("username")
     if not username:
-        return Response(f"Invalid data form", status=404)
+        return Response(f"You are not logined", status=400)
     
     # get the user
     user = User.query.filter(User.username == username).first()
@@ -305,6 +305,26 @@ def user_in_room():
     session["room"] = room.rid
     room = room.serialize()
     return room
+
+@app.route("/room/users", methods=['GET'])
+def users_in_room():
+    username = session.get("username")
+    rid = session.get("room")
+    if not username or not rid:
+        return Response(f"You are not loggined or in the room", status=400)
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        return Response(f"Room {rid} not found", status=404)
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response(f"User {username} not found", status=404)
+    if user.rid != rid:
+        return Response(f"You are not in room {rid}", status=403)
+    
+    # Get all usernames
+    users = [user.username for user in room.users]
+    return users
+    
     
 @socketio.on("connect")
 def connect():
@@ -316,9 +336,12 @@ def connect():
     room = Room.query.filter(Room.rid == rid).first()
     if not room:
         return
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return
     
     join_room(rid)
-    emit("message", {"username": username, "message": "has enter the room"}, to=rid)
+    emit("join", {"username": username, "message": "has enter the room"}, to=rid)
     # send({"username": username, "message": "has enter the room"}, to=room)
     print(f"{username} join the room")
     # TODO: Should add room number of users?
@@ -334,11 +357,23 @@ def disconnect():
         return
     
     leave_room(rid)
-    emit("message", {"username": username, "message": "has left the room"}, to=rid)
+    emit("leave", {"username": username, "message": "has left the room"}, to=rid)
     # send({"username": username, "message": "has left the room"}, to=room)
     print(f"{username} leave the room")
     # TODO: Should decrease room number of users?
+
+@socketio.on("chat")
+def handle_chat(data):
+    username = data.get("username")
+    message = data.get("message")
+    rid = data.get("rid")
+    # print("received message:", username, message)
+    if not username or not message or not rid:
+        return
     
+    emit("message", {"username": username, "message": message}, to=rid)
+    # TODO: append messages to the database
+        
     
 
 

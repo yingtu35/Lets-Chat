@@ -30,4 +30,9 @@ const getAllRooms = () => {
     return request.then(response => response.data);
 }
 
-export default {createRoom, getAllRooms, joinRoom, leaveRoom}
+const getAllUsersInRoom = () => {
+    const request = axios.get("/room/users");
+    return request.then(response => response.data);
+}
+
+export default {createRoom, getAllRooms, joinRoom, leaveRoom, getAllUsersInRoom}

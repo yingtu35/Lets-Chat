@@ -30,27 +30,70 @@ const Room = ({room, onLeaveRoomSuccess}) => {
 
     const sendMessage = () => {
         console.log(message);
+        socket.emit("chat", {
+            username: user.username,
+            message: message,
+            rid: rid,
+        })
         setMessage('');
     }
 
+    const createMessage = (username, message) => {
+        const newMessage = {
+            username: username,
+            message: message,
+        }
+        // ! Why is has to use the updater function to correctly update messages
+        setMessages(messages => [...messages, newMessage]);
+    }
+
+    const handleUserJoin = (username) => {
+        if (username === user.username) {
+            return;
+        }
+        setUsers(users => [...users, username]);
+    }
+
     useEffect(() => {
-        console.log(window.location.hostname);
         socket = io();
 
         socket.on("message", (data => {
             console.log(data.username, data.message);
+            createMessage(data.username, data.message);
+        }))
+
+        socket.on("join", (data => {
+            handleUserJoin(data.username);
+            createMessage(data.username, data.message);
+        }))
+
+        socket.on("leave", (data => {
+            console.log(data.username, data.message);
+            setUsers(users => users.filter(user => user !== data.username));
+            createMessage(data.username, data.message);
         }))
 
         return () => socket.disconnect(); 
     }, [])
     
-
+    //TODO: Get messages history and all users in the room
+    useEffect(() => {
+        RoomServices
+        .getAllUsersInRoom()
+        .then(returnedUsers => {
+            console.log(returnedUsers);
+            setUsers(returnedUsers);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }, [])
 
     return (
         <>
         <div>
             <h2>{rid} {roomName}</h2>
-            {messages.map(message => <p>User: some message</p>)}
+            {messages.map(message => <p>{message.username}: {message.message}</p>)}
             <div>
             <input type="text" 
                    rows="3"
@@ -63,7 +106,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         <button onClick={handleLeaveRoomClick}>Leave Room</button>
         <div>
             <h2>Users in this room</h2>
-            {users.map(user => <p>Username</p>)}
+            {users.map(user => <p key={user}>{user}</p>)}
         </div>
         </>
     )
