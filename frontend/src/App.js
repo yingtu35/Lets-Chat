@@ -44,15 +44,17 @@ function App() {
   }, [])
 
   useEffect(() => {
-    UserServices
-    .UserInRoom()
-    .then(room => {
-      console.log(room);
-      setCurRoom(room);
-    })
-    .catch(error => {
-      console.log(error);
-    })
+    if (curUser) {
+      UserServices
+      .UserInRoom()
+      .then(room => {
+        console.log(room);
+        setCurRoom(room);
+      })
+      .catch(error => {
+        console.log(error);
+      })
+    }
   }, [curUser])
 
   return (

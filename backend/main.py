@@ -5,6 +5,7 @@ from flask_cors import CORS
 import sqlalchemy as sa
 from string import ascii_letters, digits
 import random
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -92,6 +93,13 @@ class Message(db.Model):
     
     user = db.relationship("User", back_populates="messages")
     room = db.relationship("Room", back_populates="messages")
+    
+    def serialize(self):
+        d = Serializer.serialize(self)
+        d['username'] = d['user'].username
+        del d['user']
+        del d['room']
+        return d
 
 # Create tables
 with app.app_context():
@@ -275,9 +283,9 @@ def room_leave():
     # user is host, assign another user as host
     elif room.num_users > 1:
         users = room.users
-        for user in users:
-            if user.uid != room.host_uid:
-                room.host_uid = user.uid
+        for other_user in users:
+            if other_user.uid != room.host_uid:
+                room.host_uid = other_user.uid
                 break
         user.rid = None
         room.num_users -= 1
@@ -285,7 +293,6 @@ def room_leave():
     else:
         db.session.delete(room)
     db.session.commit()
-    session.pop("room", None)
     return Response(f"Leave Room Success", status=200)
 
 @app.route("/user-in-room", methods=['POST'])
@@ -324,7 +331,25 @@ def users_in_room():
     # Get all usernames
     users = [user.username for user in room.users]
     return users
+
+@app.route("/room/messages", methods=['GET'])
+def room_messages():
+    username = session.get("username")
+    rid = session.get("room")
+    if not username or not rid:
+        return Response(f"You are not loggined or in the room", status=400)
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        return Response(f"Room {rid} not found", status=404)
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response(f"User {username} not found", status=404)
+    if user.rid != rid:
+        return Response(f"You are not in room {rid}", status=403)
     
+    # Get all messages
+    messages = Serializer.serialize_list(room.messages)
+    return messages
     
 @socketio.on("connect")
 def connect():
@@ -339,6 +364,8 @@ def connect():
     user = User.query.filter(User.username == username).first()
     if not user:
         return
+    if user.rid != rid:
+        return
     
     join_room(rid)
     emit("join", {"username": username, "message": "has enter the room"}, to=rid)
@@ -350,16 +377,24 @@ def connect():
 def disconnect():
     username = session.get("username")
     rid = session.get("room")
+    print(f"username: {username} rid: {rid}")
     if not username or not rid:
         return
     room = Room.query.filter(Room.rid == rid).first()
     if not room:
         return
+    # user = User.query.filter(User.username == username).first()
+    # if not user:
+    #     return
+    # if user.rid != rid:
+    #     return
     
     leave_room(rid)
     emit("leave", {"username": username, "message": "has left the room"}, to=rid)
-    # send({"username": username, "message": "has left the room"}, to=room)
+    session.pop("room", None)
     print(f"{username} leave the room")
+    # check rid value is deleted
+    print(session.get("room", "Not found"))
     # TODO: Should decrease room number of users?
 
 @socketio.on("chat")
@@ -370,9 +405,26 @@ def handle_chat(data):
     # print("received message:", username, message)
     if not username or not message or not rid:
         return
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        return
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return
+    if user.rid != rid:
+        return
     
     emit("message", {"username": username, "message": message}, to=rid)
     # TODO: append messages to the database
+    newMessage = Message(
+        msg=message,
+        createdAt=datetime.now(),
+        uid=user.uid,
+        rid=room.rid
+    )
+    db.session.add(newMessage)
+    db.session.commit()
+    print(f"{username}'s new message successfully added")
         
     
 

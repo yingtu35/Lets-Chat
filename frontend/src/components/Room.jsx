@@ -39,9 +39,11 @@ const Room = ({room, onLeaveRoomSuccess}) => {
     }
 
     const createMessage = (username, message) => {
+        // console.log(Date().toString())
         const newMessage = {
             username: username,
-            message: message,
+            msg: message,
+            createdAt: Date().toString()
         }
         // ! Why is has to use the updater function to correctly update messages
         setMessages(messages => [...messages, newMessage]);
@@ -89,11 +91,23 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         })
     }, [])
 
+    useEffect(() => {
+        RoomServices
+        .getAllMessages()
+        .then(returnedMessages => {
+            console.log(returnedMessages);
+            setMessages(returnedMessages);
+        })
+        .catch(error => {
+            console.log(error);
+        })
+    }, [])
+
     return (
         <>
         <div>
             <h2>{rid} {roomName}</h2>
-            {messages.map(message => <p>{message.username}: {message.message}</p>)}
+            {messages.map(message => <p>{message.username}: {message.msg} {message.createdAt}</p>)}
             <div>
             <input type="text" 
                    rows="3"
