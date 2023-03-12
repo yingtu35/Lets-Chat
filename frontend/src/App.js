@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Home from './components/Home';
 import Sign from './components/Sign';
 import Room from './components/Room';
+import RoomServices from './services/RoomServices';
 import UserServices from './services/UserServices';
 
 export const UserContext = createContext(null)
@@ -45,8 +46,8 @@ function App() {
 
   useEffect(() => {
     if (curUser) {
-      UserServices
-      .UserInRoom()
+      RoomServices
+      .getUserRoom(curUser.username)
       .then(room => {
         console.log(room);
         setCurRoom(room);

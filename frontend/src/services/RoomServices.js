@@ -1,5 +1,10 @@
 import axios from "axios";
 
+const getUserRoom = (username) => {
+    const request = axios.get(`/api/rooms/${username}`);
+    return request.then(response => response.data);
+}
+
 const createRoom = (username, roomName) => {
     const roomInfo = {
         username: username,
@@ -14,22 +19,22 @@ const createRoom = (username, roomName) => {
 }
 
 const joinRoom = (username, rid) => {
-    const joinRoomInfo = {username, rid};
+    const joinRoomInfo = {rid};
     // const fakeroomInfo = {
     //     username: '123',
     //     rid: rid
     // }
-    const request = axios.post('/api/room-join', joinRoomInfo);
+    const request = axios.post(`/api/rooms/${username}`, joinRoomInfo);
     return request.then(response => response.data);
 }
 
-const leaveRoom = (username, rid) => {
-    const leaveRoomInfo = {username, rid};
+const leaveRoom = (username) => {
+    // const leaveRoomInfo = {rid};
     // const fakeInfo ={
     //     username: "daniel860305",
     //     rid: 3
     // }
-    const request = axios.post('/api/room-leave', leaveRoomInfo);
+    const request = axios.delete(`/api/rooms/${username}`);
     return request.then(response => response.data);
 }
 
@@ -49,6 +54,7 @@ const getAllMessages = () => {
 }
 
 export default {
+    getUserRoom,
     createRoom, 
     getAllRooms, 
     joinRoom, 

@@ -17,7 +17,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
 
     const handleLeaveRoomClick = () => {
         RoomServices
-            .leaveRoom(user.username, rid)
+            .leaveRoom(user.username)
             .then(data => {
                 console.log(data);
                 onLeaveRoomSuccess();
@@ -110,7 +110,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         <>
         <div>
             <h2>{rid} {roomName}</h2>
-            {messages.map(message => <p>{message.username}: {message.msg} {message.createdAt}</p>)}
+            {messages.map(message => <p key={message.msg_id}>{message.username}: {message.msg} {message.createdAt}</p>)}
             <div>
             <input type="text" 
                    rows="3"
