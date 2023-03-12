@@ -10,7 +10,7 @@ from datetime import datetime
 db = SQLAlchemy()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "ws://localhost:3000"], supports_credentials=True)
+# CORS(app, origins=["http://localhost:3000", "ws://localhost:3000"], supports_credentials=True)
 app.config['SECRET_KEY'] = "wkvbh;riqnvrhfgfv"
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:dANiel_092021mysql@127.0.0.1:3306/letschat"
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -106,7 +106,7 @@ with app.app_context():
     db.create_all()
 
 
-@app.route("/home")
+@app.route("/api/home")
 def home():
     session["test"] = "cookie test"
     return {
@@ -114,7 +114,7 @@ def home():
         'msg': "Hello World"
     }
     
-@app.route('/signin', methods=["POST"])
+@app.route('/api/signin', methods=["POST"])
 def signin():
     data = request.get_json()
     username = data.get("username")
@@ -133,7 +133,7 @@ def signin():
     user = user.serialize()
     return user
 
-@app.route('/logout', methods=["POST"])
+@app.route('/api/logout', methods=["POST"])
 def logout():
     username = session.get("username")
     if not username:
@@ -142,7 +142,7 @@ def logout():
     return Response("Log out success", status=200)
     
 
-@app.route('/signup', methods=["POST"])
+@app.route('/api/signup', methods=["POST"])
 def signup():
     data = request.get_json()
     username = data.get("username")
@@ -170,13 +170,13 @@ def signup():
     user = User.query.filter(User.username == username).first().serialize()
     return user
 
-@app.route("/users", methods=['GET'])
+@app.route("/api/users", methods=['GET'])
 def users():
     users = User.query.filter(User.uid <= 10).all()
     users = Serializer.serialize_list(users)
     return users
 
-@app.route("/user/auth", methods=['GET'])
+@app.route("/api/user/auth", methods=['GET'])
 def user_auth():
     username = session.get('username')
     if not username:
@@ -187,7 +187,7 @@ def user_auth():
     user = user.serialize()
     return user
 
-@app.route("/rooms", methods=['GET'])
+@app.route("/api/rooms", methods=['GET'])
 def rooms():
     username = session.get('username')
     if not username:
@@ -200,7 +200,7 @@ def rooms():
     rooms = Serializer.serialize_list(rooms)
     return rooms
 
-@app.route("/room/<int:rid>", methods=['GET'])
+@app.route("/api/room/<int:rid>", methods=['GET'])
 def show_room(rid):
     username = session.get('username')
     if not username:
@@ -216,7 +216,7 @@ def show_room(rid):
     room = room.serialize()
     return room
 
-@app.route("/rooms", methods=['POST'])
+@app.route("/api/rooms", methods=['POST'])
 def create_room():
     login_username = session.get("username")
     data = request.get_json()
@@ -262,7 +262,7 @@ def create_room():
     room = room.serialize()
     return room
 
-@app.route("/room-join", methods=['POST'])
+@app.route("/api/room-join", methods=['POST'])
 def room_join():
     login_username = session.get("username")
     data = request.get_json()
@@ -308,7 +308,7 @@ def room_join():
     room = room.serialize()
     return room
 
-@app.route("/room-leave", methods=['POST'])
+@app.route("/api/room-leave", methods=['POST'])
 def room_leave():
     username = session.get("username")
     rid = session.get("room")
@@ -343,7 +343,7 @@ def room_leave():
     db.session.commit()
     return Response(f"Leave Room Success", status=200)
 
-@app.route("/user-in-room", methods=['POST'])
+@app.route("/api/user-in-room", methods=['POST'])
 def user_in_room():
     username = session.get("username")
     if not username:
@@ -361,7 +361,7 @@ def user_in_room():
     room = room.serialize()
     return room
 
-@app.route("/room/users", methods=['GET'])
+@app.route("/api/room/users", methods=['GET'])
 def users_in_room():
     username = session.get("username")
     rid = session.get("room")
@@ -381,7 +381,7 @@ def users_in_room():
     users = [user.username for user in room.users]
     return users
 
-@app.route("/room/messages", methods=['GET'])
+@app.route("/api/room/messages", methods=['GET'])
 def room_messages():
     username = session.get("username")
     rid = session.get("room")

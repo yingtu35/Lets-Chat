@@ -71,16 +71,18 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
 const SignInForm = ({onLogInSuccess, onError}) => {
     const [username, setName] = useState("");
     const [password, setPwd] = useState("");
-    const [memory, setMemory] = useState(false);
+    const [checkBox, setCheckBox] = useState(false);
 
     const isrememberMe = () => {
-        if (memory && username !== "") {
+        if (checkBox && username !== "") {
             localStorage.setItem('username', username);
             localStorage.setItem('password', password);
+            localStorage.setItem('checkbox', true);
         }
         else {
             localStorage.removeItem('username');
             localStorage.removeItem('password');
+            localStorage.removeItem('checkbox');
         }
     }
     const handleSignInClick = async (e) => {
@@ -110,7 +112,8 @@ const SignInForm = ({onLogInSuccess, onError}) => {
 
     // Load remembered username and password
     useEffect(() => {
-        if (localStorage.getItem('username') && localStorage.getItem('password')) {
+        if (localStorage.getItem('checkbox') && localStorage.getItem('username') && localStorage.getItem('password')) {
+            setCheckBox(localStorage.getItem('checkbox'));
             setName(localStorage.getItem('username'));
             setPwd(localStorage.getItem('password'));
         }
@@ -130,7 +133,10 @@ const SignInForm = ({onLogInSuccess, onError}) => {
                    placeholder="password"
                    value={password}
                    onChange={(e) => setPwd(e.target.value)} /><br/>
-            <input type="checkbox" id="remember-check" onChange={() => setMemory(!memory)} />
+            <input type="checkbox" 
+                   id="remember-check" 
+                   checked={checkBox}
+                   onChange={() => setCheckBox(!checkBox)} />
             <label htmlFor="remember-check">Remember me</label><br/>
             <button type="submit" onClick={handleSignInClick}>Sign in</button>
         </form>
