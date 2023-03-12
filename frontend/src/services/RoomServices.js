@@ -5,12 +5,20 @@ const createRoom = (username, roomName) => {
         username: username,
         room: roomName
     }
-    const request = axios.post('/room', roomInfo);
+    // const fakeroomInfo = {
+    //     username: 'daniel860305',
+    //     room: roomName
+    // }
+    const request = axios.post('/rooms', roomInfo);
     return request.then(response => response.data);
 }
 
 const joinRoom = (username, rid) => {
     const joinRoomInfo = {username, rid};
+    // const fakeroomInfo = {
+    //     username: '123',
+    //     rid: rid
+    // }
     const request = axios.post('/room-join', joinRoomInfo);
     return request.then(response => response.data);
 }

@@ -26,12 +26,13 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
     const user = useContext(UserContext);
     const [rooms, setRooms] = useState([]);
     const [roomName, setRoomName] = useState("");
+    const [errorMsg, setError] = useState("");
 
     const handleCreateRoomClick = async (e) => {
         e.preventDefault();
 
-        if (!user.username || !roomName){
-            alert("Invalid username or roomName");
+        if (!roomName){
+            setError("Please enter a valid room name");
             return;
         }
         RoomServices
@@ -43,7 +44,26 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
                 navigate("/room");
             })
             .catch(error => {
-                console.log(error.response);
+                const status = error.response.status;
+                const data = error.response.data;
+                if (status === 404) {
+                    console.log('404', data)
+                }
+                else if (status === 401) {
+                    alert(data.concat('. Redirect to sign in page'));
+                    console.log('401', data)
+                    onLogOutSuccess();
+                    navigate('/login')
+                }
+                else if (status === 400) {
+                    alert(data.concat(". Please login again"));
+                    console.log('400', data);
+                    onLogOutSuccess();
+                    navigate('/login')
+                }
+                else {
+                    console.log(error.response);
+                }
             })
     };
     const handleJoinRoomClick = (rid) => {
@@ -55,7 +75,33 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
                 navigate("/room");
             })
             .catch(error => {
-                console.log(error);
+                const status = error.response.status;
+                const data = error.response.data;
+                if (status === 404) {
+                    alert(data);
+                    setRooms(rooms => rooms.filter(room => room.rid !== rid));
+                    console.log('404', data)
+                }
+                else if (status === 401) {
+                    alert(data.concat('. Redirect to sign in page'));
+                    console.log('401', data)
+                    onLogOutSuccess();
+                    navigate('/login')
+                }
+                else if (status === 400) {
+                    alert(data.concat(". Please login again"));
+                    console.log('400', data)
+                    onLogOutSuccess();
+                    navigate('/login')
+                }
+                else if (status === 403) {
+                    alert(data);
+                    getRooms();
+                    console.log('403', data)
+                }
+                else {
+                    console.log(error.response);
+                }
             })
     };
 
@@ -69,11 +115,17 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
             .catch(error => console.log(error));
     }
 
-    useEffect(() => {
+    const getRooms = () => {
         RoomServices
-            .getAllRooms()
-            .then(returnedRooms => setRooms(returnedRooms))
-            .catch(error => console.log(error));
+        .getAllRooms()
+        .then(returnedRooms => {
+            setRooms(returnedRooms);
+        })
+        .catch(error => console.log(error));
+    }
+
+    useEffect(() => {
+        getRooms();
         return () => {}
       }, [])
 
@@ -84,6 +136,9 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
             <p>Email: {user.email}</p>
             <button onClick={handleLogOutClick}>Log out</button>
         </div>
+        {errorMsg && (
+            <p>{errorMsg}</p>
+        )}
         <CreateRoomForm roomName={roomName} 
                         onRoomNameChange={(e) => setRoomName(e.target.value)}
                         handleCreateRoomClick={handleCreateRoomClick} />

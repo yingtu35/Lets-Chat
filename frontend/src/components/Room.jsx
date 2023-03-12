@@ -24,6 +24,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
                 navigate("/");
             })
             .catch(error => {
+                // TODO: should redirect to login page
                 console.log(error);
             })
     }
@@ -88,6 +89,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         })
         .catch(error => {
             console.log(error);
+            // TODO: should redirect to login page
         })
     }, [])
 
@@ -99,6 +101,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
             setMessages(returnedMessages);
         })
         .catch(error => {
+            // TODO: should redirect to login page
             console.log(error);
         })
     }, [])

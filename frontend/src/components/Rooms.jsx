@@ -15,6 +15,7 @@ const RoomFilter = ({query, setQuery}) => {
 const RoomDisplay = ({room, handleJoinRoomClick}) => {
     return(
         <div>
+            <p>rid: {room.rid}</p>
             <p>Room: {room.name}</p>
             <p>Current Users: {room.num_users}/{room.capacity}</p>
             <p>Host Id:{room.host_uid}</p>

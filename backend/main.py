@@ -120,14 +120,14 @@ def signin():
     username = data.get("username")
     password = data.get("password")
     if not username or not password:
-        return {"error": "invalid data form"}
+        return Response("invalid data form", status=400)
     
     user = User.query.filter(User.username == username).first()
     if not user:
-        return Response({"error": "invalid username or password"}, status=404)
+        return Response("invalid username or password", status=404)
     
     if not verify_password(password, user.hashed_password): 
-        return Response({"error": "invalid username or password"}, status=404)
+        return Response("invalid username or password", status=404)
     
     session["username"] = user.username
     user = user.serialize()
@@ -150,13 +150,16 @@ def signup():
     email = data.get("email")
     birthday = data.get("birthday", None)
     
+    if not username or not password or not email or not birthday:
+         return Response("invalid data form", status=400) 
+    
     queryset = User.query.filter(User.email == email).first()
     if queryset:
-        return Response({"error": "Email has been used by other users"}, status=404)
+        return Response("Email has been used by other users", status=404)
     
     queryset = User.query.filter(User.username == username).first()
     if queryset:
-        return Response({"error": "Username has been used by other users"}, status=404)
+        return Response("Username has been used by other users", status=404)
     
     new_user = User(username=username, 
                     hashed_password=hash_password(password),
@@ -177,34 +180,71 @@ def users():
 def user_auth():
     username = session.get('username')
     if not username:
-        return Response("Unauthenticated", status=404)
+        return Response("Unauthenticated", status=401)
     user = User.query.filter(User.username == username).first()
     if not user:
-        return Response("Unauthenticated", status=404)
+        return Response("Unauthenticated", status=401)
     user = user.serialize()
     return user
 
 @app.route("/rooms", methods=['GET'])
 def rooms():
+    username = session.get('username')
+    if not username:
+        return Response("Unauthenticated", status=401)
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response("Unauthenticated", status=401)
+    
     rooms = Room.query.all()
     rooms = Serializer.serialize_list(rooms)
     return rooms
 
-@app.route("/room", methods=['POST'])
+@app.route("/room/<int:rid>", methods=['GET'])
+def show_room(rid):
+    username = session.get('username')
+    if not username:
+        return Response("Unauthenticated", status=401)
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response("Unauthenticated", status=401)
+    
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        return Response(f"Room {rid} not found", status=404)
+        
+    room = room.serialize()
+    return room
+
+@app.route("/rooms", methods=['POST'])
 def create_room():
+    login_username = session.get("username")
     data = request.get_json()
     username = data.get("username")
+    print(login_username, username)
     room = data.get("room")
+    if not login_username or login_username != username:
+        # clear cookies
+        session.pop('username', None)
+        session.pop('room', None)
+        return Response("Unauthenticated", status=401)
+    
     if not username or not room:
-        return Response("Invalid data form", status=400)
-
+        return Response("Invalid data form", status=404)
+    
     # get the host id
     user = User.query.filter(User.username == username).first()
     if not user:
-        Response(f"Username {username} not found", status=404)
+        # clear cookies
+        session.pop('username', None)
+        session.pop('room', None)
+        return Response(f"Username {username} not found", status=401)
     
     if user.rid:
         print(f"User already has a room {user.rid}")
+        # clear cookies
+        session.pop('username', None)
+        session.pop('room', None)
         return Response(f"User already has a room {user.rid}", status=400)
 
     new_room = Room(name=room,
@@ -224,28 +264,42 @@ def create_room():
 
 @app.route("/room-join", methods=['POST'])
 def room_join():
+    login_username = session.get("username")
     data = request.get_json()
     username = data.get("username")
     rid = data.get("rid")
+    if not login_username or login_username != username:
+        # clear cookies
+        session.pop('username', None)
+        session.pop('room', None)
+        return Response("Unauthenticated", status=401)
+    
     if not username or not rid:
-        return Response("Invalid data form", status=400)
+        return Response("Invalid data form", status=404)
     
     # get the user
     user = User.query.filter(User.username == username).first()
     if not user:
-        return Response(f"User {username} not found", status=404)
+        # clear cookies
+        session.pop('username', None)
+        session.pop('room', None)
+        return Response(f"User {username} not found", status=401)
     # check if user is already in the room
     if user.rid is not None:
-        return Response(f"Problem occurs joining room", status=400)
+        # clear cookies
+        session.pop('username', None)
+        session.pop('room', None)
+        return Response(f"User already has a room {user.rid}", status=400)
     
     # get the room
     room = Room.query.filter(Room.rid == rid).first()
     if not room:
-        return Response(f"Room {rid} not found", status=404)
+        return Response(f"Room {rid} not found or has been deleted", status=404)
     
     # check if room reach maximum capacity
     if room.num_users >= room.capacity:
-        return Response(f"Room {rid} already full", status=400)
+        return Response(f"Room {rid} already full. Try again later", status=403)
+    # TODO: should move to connect, at the cost of every page refresh will cause a database write
     user.rid = room.rid
     room.num_users += 1
     db.session.commit()
@@ -256,26 +310,20 @@ def room_join():
 
 @app.route("/room-leave", methods=['POST'])
 def room_leave():
-    data = request.get_json()
-    username = data.get("username")
-    rid = data.get("rid")
+    username = session.get("username")
+    rid = session.get("room")
     if not username or not rid:
-        return Response("Invalid data form", status=400)
-    
-    # get the user
-    user = User.query.filter(User.username == username).first()
-    if not user:
-        return Response(f"User {username} not found", status=404)
-    # check if user is not in the correct room
-    if user.rid is None or user.rid != rid:
-        return Response(f"Problem occurs leaving room", status=400)
-    
-    # get the room
+        return Response(f"You are not loggined or in the room", status=400)
     room = Room.query.filter(Room.rid == rid).first()
     if not room:
         return Response(f"Room {rid} not found", status=404)
+    user = User.query.filter(User.username == username).first()
+    if not user:
+        return Response(f"User {username} not found", status=401)
+    if user.rid != rid:
+        return Response(f"You are not in room {rid}", status=403)
     
-    # TODO: Testing on every branch
+    # TODO: should move to disconnect, at the cost of every page refresh will cause a database write
     # user is not the host
     if user.uid != room.host_uid:
         user.rid = None
@@ -299,12 +347,12 @@ def room_leave():
 def user_in_room():
     username = session.get("username")
     if not username:
-        return Response(f"You are not logined", status=400)
+        return Response(f"Unauthenticated", status=401)
     
     # get the user
     user = User.query.filter(User.username == username).first()
     if not user:
-        return Response(f"User {username} not found", status=404)
+        return Response(f"User {username} not found", status=401)
     if user.rid is None:
         return Response(f"User not in any room", status=404)
     room = user.room
@@ -317,14 +365,15 @@ def user_in_room():
 def users_in_room():
     username = session.get("username")
     rid = session.get("room")
+    # TODO: should clear cookies
     if not username or not rid:
-        return Response(f"You are not loggined or in the room", status=400)
+        return Response(f"You are not loggined or not in the room", status=400)
     room = Room.query.filter(Room.rid == rid).first()
     if not room:
         return Response(f"Room {rid} not found", status=404)
     user = User.query.filter(User.username == username).first()
     if not user:
-        return Response(f"User {username} not found", status=404)
+        return Response(f"User {username} not found", status=401)
     if user.rid != rid:
         return Response(f"You are not in room {rid}", status=403)
     
@@ -336,6 +385,7 @@ def users_in_room():
 def room_messages():
     username = session.get("username")
     rid = session.get("room")
+    # TODO: should clear cookies
     if not username or not rid:
         return Response(f"You are not loggined or in the room", status=400)
     room = Room.query.filter(Room.rid == rid).first()
@@ -343,7 +393,7 @@ def room_messages():
         return Response(f"Room {rid} not found", status=404)
     user = User.query.filter(User.username == username).first()
     if not user:
-        return Response(f"User {username} not found", status=404)
+        return Response(f"User {username} not found", status=401)
     if user.rid != rid:
         return Response(f"You are not in room {rid}", status=403)
     
@@ -415,7 +465,6 @@ def handle_chat(data):
         return
     
     emit("message", {"username": username, "message": message}, to=rid)
-    # TODO: append messages to the database
     newMessage = Message(
         msg=message,
         createdAt=datetime.now(),
