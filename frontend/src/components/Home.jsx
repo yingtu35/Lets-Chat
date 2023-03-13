@@ -121,7 +121,20 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
         .then(returnedRooms => {
             setRooms(returnedRooms);
         })
-        .catch(error => console.log(error));
+        .catch(error => {
+            console.log(error);
+            const status = error.response.status;
+            const data = error.response.data;
+            if (status === 401) {
+                alert(data.concat('. Redirect to login page'));
+                console.log('401', data)
+                onLogOutSuccess();
+                navigate('/')
+            }
+            else{
+                console.log(data);
+            }
+        });
     }
 
     useEffect(() => {

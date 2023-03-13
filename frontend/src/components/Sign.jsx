@@ -21,10 +21,11 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
             onError('Please enter a valid password')
             return;
         }
-        if (!birthday) {
-            onError('Please enter a valid birthday')
-            return;
-        }
+        // TODO: Should validate email and birthday format
+        // if (!birthday) {
+        //     onError('Please enter a valid birthday')
+        //     return;
+        // }
 
         SignServices
             .SignUp(email, name, pwd, birthday)
@@ -135,7 +136,7 @@ const SignInForm = ({onLogInSuccess, onError}) => {
                    onChange={(e) => setPwd(e.target.value)} /><br/>
             <input type="checkbox" 
                    id="remember-check" 
-                   checked={checkBox}
+                   checked={checkBox? true:false}
                    onChange={() => setCheckBox(!checkBox)} />
             <label htmlFor="remember-check">Remember me</label><br/>
             <button type="submit" onClick={handleSignInClick}>Sign in</button>

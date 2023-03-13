@@ -3,13 +3,7 @@ from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from api.models import db, User, Room, Message
 from api.views import api_blueprints
 from flask_cors import CORS
-
-
-
-
 from datetime import datetime
-
-
 
 app = Flask(__name__)
 app.register_blueprint(api_blueprints, url_prefix='/api')
@@ -21,18 +15,10 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 db.app = app
 db.init_app(app)
 
-
-
-
-
-
 # Create tables
 with app.app_context():
     db.create_all()
 
-
-
-    
 @socketio.on("connect")
 def connect():
 
@@ -46,24 +32,33 @@ def connect():
     user = User.query.filter(User.username == username).first()
     if not user:
         return
-    if user.rid != rid:
-        return
+    # if user.rid != rid:
+    #     return
     
     join_room(rid)
     emit("join", {"username": username, "message": "has enter the room"}, to=rid)
     # send({"username": username, "message": "has enter the room"}, to=room)
     print(f"{username} join the room")
+    user.rid = rid
+    room.num_users += 1
+    db.session.commit()
     # TODO: Should add room number of users?
 
 @socketio.on("disconnect")
 def disconnect():
     username = session.get("username")
-    rid = session.get("room")
-    print(f"username: {username} rid: {rid}")
-    if not username or not rid:
+    # rid = session.get("room")
+    # print(f"username: {username} rid: {rid}")
+    if not username:
         return
+    user = User.query.filter(User.username == username).first()
+    if not user or not user.rid:
+        return
+    rid = user.rid
     room = Room.query.filter(Room.rid == rid).first()
     if not room:
+        user.rid = None
+        db.session.commit()
         return
     # user = User.query.filter(User.username == username).first()
     # if not user:
@@ -73,11 +68,27 @@ def disconnect():
     
     leave_room(rid)
     emit("leave", {"username": username, "message": "has left the room"}, to=rid)
-    session.pop("room", None)
+    # session.pop("room", None)
     print(f"{username} leave the room")
-    # check rid value is deleted
-    print(session.get("room", "Not found"))
+
     # TODO: Should decrease room number of users?
+    # user is not the host
+    if user.uid != room.host_uid:
+        user.rid = None
+        room.num_users -= 1
+    # user is host, assign another user as host
+    elif room.num_users > 1:
+        users = room.users
+        for other_user in users:
+            if other_user.uid != room.host_uid:
+                room.host_uid = other_user.uid
+                break
+        user.rid = None
+        room.num_users -= 1
+    # user is host, delete the whole room
+    else:
+        db.session.delete(room)
+    db.session.commit()
 
 @socketio.on("chat")
 def handle_chat(data):

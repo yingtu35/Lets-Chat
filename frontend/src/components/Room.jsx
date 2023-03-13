@@ -26,7 +26,30 @@ const Room = ({room, onLeaveRoomSuccess}) => {
             .catch(error => {
                 // TODO: should redirect to login page
                 console.log(error);
-            })
+                const status = error.response.status;
+                const data = error.response.data;
+                if (status === 401) {
+                    alert(data.concat('. Redirect to login page'));
+                    console.log('401', data)
+                    onLeaveRoomSuccess();
+                    navigate('/')
+                }
+                else if (status === 404) {
+                    alert(data.concat('. Redirect to home page'));
+                    console.log('404', data)
+                    onLeaveRoomSuccess();
+                    navigate('/')
+                }
+                else if (status === 403) {
+                    alert(data.concat('. Redirect to home page'));
+                    console.log('403', data)
+                    onLeaveRoomSuccess();
+                    navigate('/')
+                }
+                else {
+                    console.log(data);
+                }
+                })
     }
 
     const sendMessage = () => {
@@ -85,11 +108,28 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         .getAllUsersInRoom()
         .then(returnedUsers => {
             console.log(returnedUsers);
-            setUsers(returnedUsers);
+            setUsers(returnedUsers.concat(user.username));
         })
         .catch(error => {
             console.log(error);
             // TODO: should redirect to login page
+            const status = error.response.status;
+            const data = error.response.data;
+            if (status === 401) {
+                alert(data.concat('. Redirect to login page'));
+                console.log('401', data)
+                onLeaveRoomSuccess();
+                navigate('/')
+            }
+            else if (status === 404) {
+                alert(data.concat('. Redirect to home page'));
+                console.log('404', data)
+                onLeaveRoomSuccess();
+                navigate('/')
+            }
+            else {
+                console.log(data);
+            }
         })
     }, [])
 
@@ -103,6 +143,23 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         .catch(error => {
             // TODO: should redirect to login page
             console.log(error);
+            const status = error.response.status;
+            const data = error.response.data;
+            if (status === 401) {
+                alert(data.concat('. Redirect to login page'));
+                console.log('401', data)
+                onLeaveRoomSuccess();
+                navigate('/')
+            }
+            else if (status === 404) {
+                alert(data.concat('. Redirect to home page'));
+                console.log('404', data)
+                onLeaveRoomSuccess();
+                navigate('/')
+            }
+            else {
+                console.log(data);
+            }
         })
     }, [])
 
