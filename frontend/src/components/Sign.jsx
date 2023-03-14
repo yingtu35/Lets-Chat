@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Validation from "./Validation";
 import SignServices from "../services/SignServices";
 
 const SignUpForm = ({onSignUpSuccess, onError}) => {
@@ -6,27 +7,22 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
     const [pwd, setPwd] = useState("");
     const [email, setEmail] = useState("");
     const [birthday, setBirth] = useState("");
+    const [nameError, setNameError] = useState("");
+    const [pwdError, setPwdError] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [birthdayError, setBirthError] = useState("");
+
     const handleSignUpClick = async (e) => {
         e.preventDefault();
         // check every input
-        if (!email) {
-            onError('Please enter a valid email')
-            return;
-        }
-        if (!name) {
-            onError('Please enter a valid username')
-            return;
-        }
-        if (!pwd) {
-            onError('Please enter a valid password')
-            return;
-        }
-        // TODO: Should validate email and birthday format
-        // if (!birthday) {
-        //     onError('Please enter a valid birthday')
-        //     return;
-        // }
+        const isValidEmail = Validation.validateEmail(email, setEmailError);
+        const isValidName = Validation.validateUsername(name, setNameError);
+        const isValidPwd = Validation.validatePassword(pwd, setPwdError);
+        const isValidBirthday = Validation.validateBirthday(birthday, setBirthError);
 
+        if (!isValidEmail || !isValidName || !isValidPwd || !isValidBirthday) {
+            return;
+        }
         SignServices
             .SignUp(email, name, pwd, birthday)
             .then(returnedUser => {
@@ -38,32 +34,49 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
                 onError(error.response.data);
             })
     };
+
+    const handleValueChange = (value, setValue, setValueError) => {
+        setValue(value);
+        setValueError("");
+    }
     return(
         <form>
-            <label htmlFor="new_email">Email</label><br/>
-            <input type="email" 
-                   id="new_email"
-                   value={email} 
-                   placeholder="xyz@abc.com"
-                   onChange={(e) => setEmail(e.target.value)} /><br/>
-            <label htmlFor="new_username">Username</label><br/>
-            <input type="text" 
-                   id="new_username" 
-                   value={name}
-                   placeholder="username"
-                   onChange={(e) => setName(e.target.value)} /><br/>
-            <label htmlFor="new_pwd">Password</label><br/>
-            <input type="password" 
-                   id="new_pwd"
-                   value={pwd}
-                   placeholder="password"
-                   onChange={(e) => setPwd(e.target.value)} /><br/>
-            <label htmlFor="new_birthday">Birthday (Optional)</label><br/>
-            <input type="text" 
-                   id="new_birthday"
-                   value={birthday}
-                   placeholder="1997-03-05"
-                   onChange={(e) => setBirth(e.target.value)} /><br/>
+            <div>
+                <label htmlFor="new_email">Email</label><br/>
+                <input type="email" 
+                    id="new_email"
+                    value={email} 
+                    placeholder="xyz@abc.com"
+                    onChange={(e) => handleValueChange(e.target.value, setEmail, setEmailError)} /><br/>
+                {emailError && (<small>{emailError}</small>)}
+            </div>
+            <div>
+                <label htmlFor="new_username">Username</label><br/>
+                <input type="text" 
+                    id="new_username" 
+                    value={name}
+                    placeholder="username"
+                    onChange={(e) => handleValueChange(e.target.value, setName, setNameError)}/><br/>
+                {nameError && (<small>{nameError}</small>)}
+            </div>
+            <div>
+                <label htmlFor="new_pwd">Password</label><br/>
+                <input type="password" 
+                    id="new_pwd"
+                    value={pwd}
+                    placeholder="password"
+                    onChange={(e) => handleValueChange(e.target.value, setPwd, setPwdError)} /><br/>
+                {pwdError && (<small>{pwdError}</small>)}
+            </div>
+            <div>
+                <label htmlFor="new_birthday">Birthday (Optional)</label><br/>
+                <input type="text" 
+                    id="new_birthday"
+                    value={birthday}
+                    placeholder="1997-03-05"
+                    onChange={(e) => handleValueChange(e.target.value, setBirth, setBirthError)} /><br/>            
+                {birthdayError && (<small>{birthdayError}</small>)}
+            </div>
             <button type="submit" onClick={handleSignUpClick}>Sign up</button>
         </form>
     );
@@ -72,6 +85,8 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
 const SignInForm = ({onLogInSuccess, onError}) => {
     const [username, setName] = useState("");
     const [password, setPwd] = useState("");
+    const [nameError, setNameError] = useState("");
+    const [pwdError, setPwdError] = useState("");
     const [checkBox, setCheckBox] = useState(false);
 
     const isrememberMe = () => {
@@ -89,12 +104,9 @@ const SignInForm = ({onLogInSuccess, onError}) => {
     const handleSignInClick = async (e) => {
         e.preventDefault();
         // Check every input
-        if (!username) {
-            onError('Please enter your username')
-            return;
-        }
-        if (!password) {
-            onError('Please enter your password')
+        const isValidName = Validation.validateUsername(username, setNameError);
+        const isValidPwd = Validation.validatePassword(password, setPwdError);
+        if (!isValidName || !isValidPwd) {
             return;
         }
         isrememberMe();
@@ -111,6 +123,11 @@ const SignInForm = ({onLogInSuccess, onError}) => {
             })
     };
 
+    const handleValueChange = (value, setValue, setValueError) => {
+        setValue(value);
+        setValueError("");
+    }
+
     // Load remembered username and password
     useEffect(() => {
         if (localStorage.getItem('checkbox') && localStorage.getItem('username') && localStorage.getItem('password')) {
@@ -122,23 +139,31 @@ const SignInForm = ({onLogInSuccess, onError}) => {
 
     return (
         <form>
-            <label htmlFor="signin_username">Username</label><br/>
-            <input type="text" 
-                   id="signin_username" 
-                   placeholder="username"
-                   value={username}
-                   onChange={(e) => setName(e.target.value)} /><br/>
-            <label htmlFor="signin_pwd">Password</label><br/>
-            <input type="password" 
-                   id="signin_pwd"
-                   placeholder="password"
-                   value={password}
-                   onChange={(e) => setPwd(e.target.value)} /><br/>
+            <div>
+                <label htmlFor="signin_username">Username</label><br/>
+                <input type="text" 
+                    id="signin_username" 
+                    placeholder="username"
+                    value={username}
+                    onChange={(e) => handleValueChange(e.target.value, setName, setNameError)} /><br/>
+                {nameError && <small>{nameError}</small>}
+            </div>
+            <div>
+                <label htmlFor="signin_pwd">Password</label><br/>
+                <input type="password" 
+                    id="signin_pwd"
+                    placeholder="password"
+                    value={password}
+                    onChange={(e) => handleValueChange(e.target.value, setPwd, setPwdError)} /><br/>
+                {pwdError && <small>{pwdError}</small>}
+            </div>
+            <div>  
             <input type="checkbox" 
                    id="remember-check" 
                    checked={checkBox? true:false}
                    onChange={() => setCheckBox(!checkBox)} />
             <label htmlFor="remember-check">Remember me</label><br/>
+            </div>
             <button type="submit" onClick={handleSignInClick}>Sign in</button>
         </form>
     )
