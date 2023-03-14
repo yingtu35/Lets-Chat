@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Validation from "./Validation";
 import SignServices from "../services/SignServices";
+import GoogleSignIn from "./GoogleSignIn";
 
 const SignUpForm = ({onSignUpSuccess, onError}) => {
     const [name, setName] = useState("");
@@ -165,6 +166,7 @@ const SignInForm = ({onLogInSuccess, onError}) => {
             <label htmlFor="remember-check">Remember me</label><br/>
             </div>
             <button type="submit" onClick={handleSignInClick}>Sign in</button>
+            {/* <GoogleSignIn /> */}
         </form>
     )
 }
@@ -176,6 +178,29 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
         setSign(isSign);
         setError('');
     }
+
+    const handleCredentialResponse = (response) => {
+        console.log("ID token:", response.credential);
+        SignServices
+        .SignWithGoogle(response.credential)
+        .then(data => console.log(data))
+        .catch(error => console.log(error))
+    }
+
+    useEffect(() => {
+        /*global google*/
+        google.accounts.id.initialize({
+            client_id: "366291414162-ttot02sq80dmapdd42l8ns8trk77q30e.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+        })
+
+        google.accounts.id.renderButton(
+            document.getElementById("signInDiv"),
+            { theme: "outline", size: "large"}
+        )
+
+        google.accounts.id.prompt();
+      }, [])
     
     return(
         <>
@@ -186,6 +211,7 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
         {errorMsg && (
             <p>{errorMsg}</p>
         )}
+        <div id="signInDiv"></div>
         {sign
         ? <SignInForm onLogInSuccess={onLogInSuccess} onError={setError}/>
         : <SignUpForm onSignUpSuccess={onSignUpSuccess} onError={setError}/>}

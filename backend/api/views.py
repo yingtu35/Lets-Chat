@@ -1,14 +1,28 @@
 from flask import Blueprint, request, session, Response
 from .models import db, Serializer, User, Room
 from .utils import verify_password, hash_password
+from google.oauth2 import id_token
+# ! Why module not found?
+from google.auth.transport import requests
 api_blueprints = Blueprint('api', __name__)
 
+CLIENT_ID = "366291414162-ttot02sq80dmapdd42l8ns8trk77q30e.apps.googleusercontent.com"
 @api_blueprints.route("/home")
 def home():
     return {
         'owner': "Ying Tu",
         'msg': "Hello World"
     }
+    
+@api_blueprints.route('/session/google', methods=["POST"])
+def google_login():
+    data = request.get_json()
+    # print(data)
+    token = data['credential']
+    id_info = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+    print(id_info)
+    # print(token)
+    return id_info
     
 @api_blueprints.route('/session', methods=["POST"])
 def signin():
