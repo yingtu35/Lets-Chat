@@ -2,7 +2,7 @@ from flask import Flask, request, Response, session, render_template
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from api.models import db, User, Room, Message
 from api.views import api_blueprints
-from flask_cors import CORS
+# from flask_cors import CORS
 from datetime import datetime
 
 app = Flask(__name__)
