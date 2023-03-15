@@ -4,3 +4,5 @@ flask_sqlalchemy
 sqlAlchemy
 evenlet
 passlib
+google-auth
+requests

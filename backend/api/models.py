@@ -21,8 +21,8 @@ class User(db.Model):
     uid = sa.Column(sa.Integer, primary_key=True)
     username = sa.Column(sa.String(30), unique=True, nullable=False, index=True)
     hashed_password = sa.Column(sa.String(255), nullable=False)
-    # TODO: email should be indexed for fast lookup
-    email = sa.Column(sa.String(255), unique=True, nullable=False)
+    email = sa.Column(sa.String(255), unique=True, nullable=False, index=True)
+    google_sub = sa.Column(sa.String(255), unique=True, nullable=True)
     birthday = sa.Column(sa.Date, nullable=True)
     rid = sa.Column(sa.Integer, sa.ForeignKey('room.rid', ondelete="SET NULL"), nullable=True)
     
@@ -34,6 +34,7 @@ class User(db.Model):
         del d['hashed_password']
         del d['messages']
         del d["room"]
+        del d["google_sub"]
         return d
 
 class Room(db.Model):

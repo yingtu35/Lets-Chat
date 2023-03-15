@@ -129,6 +129,35 @@ const SignInForm = ({onLogInSuccess, onError}) => {
         setValueError("");
     }
 
+    const handleCredentialResponse = (response) => {
+        console.log("ID token:", response.credential);
+        SignServices
+        .SignWithGoogle(response.credential)
+        .then(returnedUser => {
+            console.log(returnedUser);
+            onLogInSuccess(returnedUser);
+        })
+        .catch(error =>{
+            console.log(error.response.data);
+            onError(error.response.data);
+        })
+    }
+
+    useEffect(() => {
+        /*global google*/
+        google.accounts.id.initialize({
+            client_id: "366291414162-ttot02sq80dmapdd42l8ns8trk77q30e.apps.googleusercontent.com",
+            callback: handleCredentialResponse
+        })
+
+        google.accounts.id.renderButton(
+            document.getElementById("signInDiv"),
+            { theme: "outline", size: "large"}
+        )
+
+        google.accounts.id.prompt();
+      }, [])
+
     // Load remembered username and password
     useEffect(() => {
         if (localStorage.getItem('checkbox') && localStorage.getItem('username') && localStorage.getItem('password')) {
@@ -140,6 +169,7 @@ const SignInForm = ({onLogInSuccess, onError}) => {
 
     return (
         <form>
+            <div id="signInDiv"></div>
             <div>
                 <label htmlFor="signin_username">Username</label><br/>
                 <input type="text" 
@@ -179,28 +209,7 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
         setError('');
     }
 
-    const handleCredentialResponse = (response) => {
-        console.log("ID token:", response.credential);
-        SignServices
-        .SignWithGoogle(response.credential)
-        .then(data => console.log(data))
-        .catch(error => console.log(error))
-    }
-
-    useEffect(() => {
-        /*global google*/
-        google.accounts.id.initialize({
-            client_id: "366291414162-ttot02sq80dmapdd42l8ns8trk77q30e.apps.googleusercontent.com",
-            callback: handleCredentialResponse
-        })
-
-        google.accounts.id.renderButton(
-            document.getElementById("signInDiv"),
-            { theme: "outline", size: "large"}
-        )
-
-        google.accounts.id.prompt();
-      }, [])
+    
     
     return(
         <>
@@ -211,7 +220,6 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
         {errorMsg && (
             <p>{errorMsg}</p>
         )}
-        <div id="signInDiv"></div>
         {sign
         ? <SignInForm onLogInSuccess={onLogInSuccess} onError={setError}/>
         : <SignUpForm onSignUpSuccess={onSignUpSuccess} onError={setError}/>}

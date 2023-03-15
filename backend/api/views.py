@@ -3,7 +3,7 @@ from .models import db, Serializer, User, Room
 from .utils import verify_password, hash_password
 from google.oauth2 import id_token
 # ! Why module not found?
-from google.auth.transport import requests
+from google.auth.transport.requests import Request
 api_blueprints = Blueprint('api', __name__)
 
 CLIENT_ID = "366291414162-ttot02sq80dmapdd42l8ns8trk77q30e.apps.googleusercontent.com"
@@ -13,16 +13,36 @@ def home():
         'owner': "Ying Tu",
         'msg': "Hello World"
     }
+
+# TODO: GitHub sign in
     
 @api_blueprints.route('/session/google', methods=["POST"])
 def google_login():
     data = request.get_json()
     # print(data)
     token = data['credential']
-    id_info = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
-    print(id_info)
-    # print(token)
-    return id_info
+    try:
+        id_info = id_token.verify_oauth2_token(token, Request(), CLIENT_ID)
+        print(id_info)
+        email = id_info["email"]
+        sub = id_info["sub"]
+        # TODO: can save picture and display in the page
+        # find user with this email
+        user = User.query.filter(User.email == email).first()
+        if not user:
+            return Response("invalid username or password", status=404)
+        if user.google_sub and user.google_sub != sub:
+            return Response("invalid username or password", status=404)
+        if not user.google_sub:
+            user.google_sub = sub
+            db.session.commit()
+            
+        session["username"] = user.username
+        user = user.serialize()
+        return user
+    except:
+        print("Google sign in verification failed")
+        return Response("invalid username or password", status=404)
     
 @api_blueprints.route('/session', methods=["POST"])
 def signin():
