@@ -1,5 +1,8 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import "./App.css"
+import Header from './components/Header';
+import Footer from './components/Footer';
 import Home from './components/Home';
 import Sign from './components/Sign';
 import Room from './components/Room';
@@ -61,6 +64,7 @@ function App() {
   return (
     <UserContext.Provider value={curUser}>
     <div className="App">
+      <Header />
       <Router>
         <Routes>
           <Route path="/" element={curRoom 
@@ -77,6 +81,7 @@ function App() {
                                   : <Navigate to={"/"} />} />
         </Routes>
       </Router>
+      <Footer />
     </div>
     </UserContext.Provider>
   );

@@ -6,7 +6,60 @@ import { io } from "socket.io-client"
 
 let socket;
 
+const Message = ({username, msg, createdAt}) => {
+    const messageStyle = {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        margin: "10px"
+    }
+    return (
+        <div style={messageStyle}>
+            <span>{username}: {msg}</span>
+            <span>{createdAt}</span>
+        </div>
+    )
+}
+
 const Room = ({room, onLeaveRoomSuccess}) => {
+    const roomStyle = {
+        border: '1px solid red',
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "center",
+    }
+
+    const roomLeftStyle = {
+        border: "1px solid blue"
+    }
+
+    const roomRightStyle = {
+        border: "1px solid green"
+    }
+
+    const roomTitleStyle = {
+        border: '1px solid red',
+        textAlign: "center",
+    }
+
+    const roomMessagesStyle = {
+        border: '1px solid blue',
+        height: "500px",
+        width: "800px"
+    }
+
+    const messageInputFormStyle = {
+        border: '1px solid green'
+    }
+
+    const roomUsersStyle = {
+        border: '1px solid purple'
+    }
+
+    const leaveRoomButtonStyle = {
+        border: '1px solid orange'
+    }
+
     const navigate = useNavigate();
     const user = useContext(UserContext);
     const [rid, setRid] = useState(room.rid);
@@ -164,25 +217,37 @@ const Room = ({room, onLeaveRoomSuccess}) => {
     }, [])
 
     return (
-        <>
-        <div>
-            <h2>{rid} {roomName}</h2>
-            {messages.map(message => <p key={message.msg_id}>{message.username}: {message.msg} {message.createdAt}</p>)}
-            <div>
-            <input type="text" 
-                   rows="3"
-                   value={message} 
-                   placeholder="message"
-                   onChange = {(e) => setMessage(e.target.value)} />
-            <button onClick={sendMessage}>Send</button>
+        <div style={roomStyle}>
+            <div style={roomLeftStyle}>
+                <div style={roomTitleStyle}>
+                    <h2 >{rid} {roomName}</h2>
+                </div>
+                <div style={roomMessagesStyle}>
+                {messages.map(msg => <Message key={msg.msg_id} username={msg.username} msg={msg.msg} createdAt={msg.createdAt} />)}
+                </div>
+                <div style={messageInputFormStyle}>
+                    <div style={{overflow: "hidden"}}>
+                        <input
+                            style={{width: "100%"}} 
+                            type="text" 
+                            rows="3"
+                            value={message} 
+                            placeholder="message"
+                            onChange = {(e) => setMessage(e.target.value)} />
+                    </div>
+                    <button style={{float: "right"}} onClick={sendMessage}>Send</button>
+                </div>
+            </div>
+            <div style={roomRightStyle}>
+                <div style={roomUsersStyle}>
+                    <h2>Users</h2>
+                    {users.map(user => <p key={user}>{user}</p>)}
+                </div>
+                <div style={leaveRoomButtonStyle}>
+                    <button onClick={handleLeaveRoomClick}>Leave Room</button>
+                </div>
             </div>
         </div>
-        <button onClick={handleLeaveRoomClick}>Leave Room</button>
-        <div>
-            <h2>Users in this room</h2>
-            {users.map(user => <p key={user}>{user}</p>)}
-        </div>
-        </>
     )
 }
 

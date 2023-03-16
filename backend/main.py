@@ -69,26 +69,28 @@ def disconnect():
     leave_room(rid)
     emit("leave", {"username": username, "message": "has left the room"}, to=rid)
     # session.pop("room", None)
-    print(f"{username} leave the room")
+    # TODO: Temporary solution, should revise the logic
+    # ! User is kicked out everytime page is refreshed
+    if not session.get("room"):
+        print(f"{username} leave the room")
 
-    # TODO: Should decrease room number of users?
-    # user is not the host
-    if user.uid != room.host_uid:
-        user.rid = None
-        room.num_users -= 1
-    # user is host, assign another user as host
-    elif room.num_users > 1:
-        users = room.users
-        for other_user in users:
-            if other_user.uid != room.host_uid:
-                room.host_uid = other_user.uid
-                break
-        user.rid = None
-        room.num_users -= 1
-    # user is host, delete the whole room
-    else:
-        db.session.delete(room)
-    db.session.commit()
+        # user is not the host
+        if user.uid != room.host_uid:
+            user.rid = None
+            room.num_users -= 1
+        # user is host, assign another user as host
+        elif room.num_users > 1:
+            users = room.users
+            for other_user in users:
+                if other_user.uid != room.host_uid:
+                    room.host_uid = other_user.uid
+                    break
+            user.rid = None
+            room.num_users -= 1
+        # user is host, delete the whole room
+        else:
+            db.session.delete(room)
+        db.session.commit()
 
 @socketio.on("chat")
 def handle_chat(data):
@@ -118,14 +120,6 @@ def handle_chat(data):
     db.session.commit()
     print(f"{username}'s new message successfully added")
         
-    
-
-
-    
-    
-        
-        
-
 # Running app
 if __name__ == '__main__':
     socketio.run(app, debug=True)

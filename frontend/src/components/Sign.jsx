@@ -3,7 +3,7 @@ import Validation from "./Validation";
 import SignServices from "../services/SignServices";
 import GoogleSignIn from "./GoogleSignIn";
 
-const SignUpForm = ({onSignUpSuccess, onError}) => {
+const SignUpForm = ({onSignUpSuccess}) => {
     const [name, setName] = useState("");
     const [pwd, setPwd] = useState("");
     const [email, setEmail] = useState("");
@@ -12,6 +12,10 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
     const [pwdError, setPwdError] = useState("");
     const [emailError, setEmailError] = useState("");
     const [birthdayError, setBirthError] = useState("");
+
+    const signUpFormStyle = {        
+        border: '1px solid red'
+    }
 
     const handleSignUpClick = async (e) => {
         e.preventDefault();
@@ -32,7 +36,6 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
             })
             .catch(error => {
                 console.log(error.response.data);
-                onError(error.response.data);
             })
     };
 
@@ -41,7 +44,7 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
         setValueError("");
     }
     return(
-        <form>
+        <form style={signUpFormStyle}>
             <div>
                 <label htmlFor="new_email">Email</label><br/>
                 <input type="email" 
@@ -83,12 +86,39 @@ const SignUpForm = ({onSignUpSuccess, onError}) => {
     );
 };
 
-const SignInForm = ({onLogInSuccess, onError}) => {
+const SignInForm = ({onLogInSuccess}) => {
     const [username, setName] = useState("");
     const [password, setPwd] = useState("");
     const [nameError, setNameError] = useState("");
     const [pwdError, setPwdError] = useState("");
     const [checkBox, setCheckBox] = useState(false);
+
+    const socialSignInStyle = {
+        border: '1px solid red',
+        display: "flex",
+        flexDirection: "column"
+    }
+
+    const signInButtonStyle = {
+        width: "100%",
+        margin: "0 auto"
+    }
+    
+    const signInFormStyle = {        
+        border: '1px solid red'
+    }
+
+    const signInSettingStyle = {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between"
+    }
+
+    const inputStyle = {
+        width: "100%",
+        height: "25px",
+        margin: "10px 0"
+    }
 
     const isrememberMe = () => {
         if (checkBox && username !== "") {
@@ -120,7 +150,6 @@ const SignInForm = ({onLogInSuccess, onError}) => {
             })
             .catch(error =>{
                 console.log(error.response.data);
-                onError(error.response.data);
             })
     };
 
@@ -139,7 +168,6 @@ const SignInForm = ({onLogInSuccess, onError}) => {
         })
         .catch(error =>{
             console.log(error.response.data);
-            onError(error.response.data);
         })
     }
 
@@ -168,62 +196,92 @@ const SignInForm = ({onLogInSuccess, onError}) => {
     }, [])
 
     return (
-        <form>
-            <div id="signInDiv"></div>
-            <div>
-                <label htmlFor="signin_username">Username</label><br/>
-                <input type="text" 
-                    id="signin_username" 
-                    placeholder="username"
-                    value={username}
-                    onChange={(e) => handleValueChange(e.target.value, setName, setNameError)} /><br/>
-                {nameError && <small>{nameError}</small>}
+        <div style={{border: "1px solid blue"}}>
+            <div style={socialSignInStyle}>
+                <div style={signInButtonStyle} id="signInDiv"></div>
+                <button style={signInButtonStyle}>Another Button</button>
             </div>
-            <div>
-                <label htmlFor="signin_pwd">Password</label><br/>
-                <input type="password" 
-                    id="signin_pwd"
-                    placeholder="password"
-                    value={password}
-                    onChange={(e) => handleValueChange(e.target.value, setPwd, setPwdError)} /><br/>
-                {pwdError && <small>{pwdError}</small>}
-            </div>
-            <div>  
-            <input type="checkbox" 
-                   id="remember-check" 
-                   checked={checkBox? true:false}
-                   onChange={() => setCheckBox(!checkBox)} />
-            <label htmlFor="remember-check">Remember me</label><br/>
-            </div>
-            <button type="submit" onClick={handleSignInClick}>Sign in</button>
-            {/* <GoogleSignIn /> */}
-        </form>
+            <form style={signInFormStyle}>
+                <div>
+                    <label htmlFor="signin_username">Username</label><br/>
+                    <input
+                        style={inputStyle} 
+                        type="text" 
+                        id="signin_username" 
+                        placeholder="username"
+                        value={username}
+                        onChange={(e) => handleValueChange(e.target.value, setName, setNameError)} /><br/>
+                    {nameError && <small>{nameError}</small>}
+                </div>
+                <div>
+                    <label htmlFor="signin_pwd">Password</label><br/>
+                    <input 
+                        style={inputStyle} 
+                        type="password" 
+                        id="signin_pwd"
+                        placeholder="password"
+                        value={password}
+                        onChange={(e) => handleValueChange(e.target.value, setPwd, setPwdError)} /><br/>
+                    {pwdError && <small>{pwdError}</small>}
+                </div>
+                <div style={signInSettingStyle}>
+                    <label style={{cursor: "pointer"}}>
+                        <input type="checkbox" 
+                            id="remember-check" 
+                            checked={checkBox? true:false}
+                            onChange={() => setCheckBox(!checkBox)} />
+                        <span>Remember me</span>
+                    </label>
+                    <label style={{cursor: "pointer"}}>
+                        <span>Forgot password?</span>
+                    </label>   
+                </div>
+                <button style={signInButtonStyle} type="submit" onClick={handleSignInClick}>Sign in</button>
+                {/* <GoogleSignIn /> */}
+            </form>
+        </div>
     )
 }
 const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
-    const [errorMsg, setError] = useState('');
     const [sign, setSign] = useState(true);
 
-    const onSwitchPage = (isSign) => {
-        setSign(isSign);
-        setError('');
+    const signContainerStyle = {
+        border: "1px solid red",
+        margin: "100px 0 100px 0",
+        display: "flex",
+        flexDirection: "row"
+    }
+    const signStyle = {
+        border: '1px solid blue',
+        margin: "0 auto",
+        width: "500px",
+        padding: "5px"
     }
 
-    
-    
+    const signBarStyle = {
+        border: '1px solid red',
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-around",
+        marginBottom: "10px"
+    }
+
+    const signBarButtonStyle = {
+        border: '1px solid blue'
+    }
+
     return(
-        <>
-        <nav>
-            <button onClick={() => onSwitchPage(true)}>Sign In</button>
-            <button onClick={() => onSwitchPage(false)}>Sign Up</button>
-        </nav>
-        {errorMsg && (
-            <p>{errorMsg}</p>
-        )}
-        {sign
-        ? <SignInForm onLogInSuccess={onLogInSuccess} onError={setError}/>
-        : <SignUpForm onSignUpSuccess={onSignUpSuccess} onError={setError}/>}
-        </>
+        <div style={signContainerStyle}>
+            <div style={signStyle}>
+                <nav style={signBarStyle}>
+                    <button style={signBarButtonStyle} onClick={() => setSign(true)}>Sign In</button>
+                    <button style={signBarButtonStyle} onClick={() => setSign(false)}>Sign Up</button>
+                </nav>
+                {sign
+                ? <SignInForm onLogInSuccess={onLogInSuccess}/>
+                : <SignUpForm onSignUpSuccess={onSignUpSuccess}/>}
+            </div>
+        </div>
     );
 };
 

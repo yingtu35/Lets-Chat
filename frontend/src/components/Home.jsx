@@ -5,19 +5,37 @@ import RoomServices from "../services/RoomServices";
 import SignServices from "../services/SignServices";
 import Rooms from "./Rooms";
 
-const CreateRoomForm = ({roomName, onRoomNameChange, handleCreateRoomClick}) => {
+const CreateRoom = ({roomName, onRoomNameChange, handleCreateRoomClick}) => {
+    const createRoomFormStyle = {
+        border: '1px solid red',
+        display: "flex",
+        flexDirection: "column",
+    }
     return (
-        <form>
-            <label htmlFor="newRoom">Enter a new room name</label><br/>
-            <input type="text" 
-                   id="newRoom"
-                   value={roomName}
-                   onChange={onRoomNameChange} /><br/>
-            <button type="submit"
-                    onClick={handleCreateRoomClick}>
-                Create a Room
-            </button>
-        </form>
+        <div>
+            <h2>Create a new room</h2>
+            <form style={createRoomFormStyle}>
+                <span>Room Name: </span>
+                <input type="text"
+                    placeholder="Enter a new room name" 
+                    id="newRoom"
+                    value={roomName}
+                    onChange={onRoomNameChange} />
+                <span>Room Password (Optional): </span>
+                <input type="text"
+                    placeholder="1 - 16 characters" 
+                    id="newRoomPassword"
+                />
+                <span>Room Capacity: </span>
+                <select name="newRoomCapacity" id="newRoomCapacity">
+                    {Array(15).fill().map((x, i) => i+2).map(capacity => <option value={capacity} key={capacity}>{capacity}</option>)}
+                </select>
+                <button type="submit"
+                        onClick={handleCreateRoomClick}>
+                    Create a Room
+                </button>
+            </form>
+        </div>
     )
 }
 
@@ -26,7 +44,28 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
     const user = useContext(UserContext);
     const [rooms, setRooms] = useState([]);
     const [roomName, setRoomName] = useState("");
+    const [roomPassword, setRoomPassword] = useState("");
     const [errorMsg, setError] = useState("");
+
+    const homeContainerStyle = {
+        border: "1px solid blue",
+        padding: "5px",
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-around"
+    }
+
+    const homeRoomsStyle = {
+        border: "1px solid red"
+    }
+
+    const homeUsersStyle = {
+        border: "1px solid red"
+    }
+
+    const userInfoStyle = {
+        border: '1px solid red'
+    }
 
     const handleCreateRoomClick = async (e) => {
         e.preventDefault();
@@ -143,21 +182,24 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
       }, [])
 
     return (
-        <>
-        <div>
-            <p>Username: {user.username}</p>
-            <p>Email: {user.email}</p>
-            <button onClick={handleLogOutClick}>Log out</button>
+        <div style={homeContainerStyle}>
+            <div style={homeRoomsStyle}>
+                {/* <div style={userInfoStyle}>
+                    <h3>This section should move to header in the future</h3>
+                    <p>Username: {user.username}</p>
+                    <p>Email: {user.email}</p>
+                    <button onClick={handleLogOutClick}>Log out</button>
+                </div> */}
+                {errorMsg && (
+                    <p>{errorMsg}</p>
+                )}
+                <CreateRoom roomName={roomName} 
+                                onRoomNameChange={(e) => setRoomName(e.target.value)}
+                                handleCreateRoomClick={handleCreateRoomClick} />
+                <Rooms rooms={rooms} handleJoinRoomClick={handleJoinRoomClick} />
+            </div>
+            <div style={homeUsersStyle}>Users are displayed here</div>
         </div>
-        {errorMsg && (
-            <p>{errorMsg}</p>
-        )}
-        <CreateRoomForm roomName={roomName} 
-                        onRoomNameChange={(e) => setRoomName(e.target.value)}
-                        handleCreateRoomClick={handleCreateRoomClick} />
-        <h2>All Rooms</h2>
-        <Rooms rooms={rooms} handleJoinRoomClick={handleJoinRoomClick} />
-        </>
     )
 }
 
