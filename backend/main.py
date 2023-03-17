@@ -4,12 +4,15 @@ from api.models import db, User, Room, Message
 from api.views import api_blueprints
 # from flask_cors import CORS
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 app = Flask(__name__)
 app.register_blueprint(api_blueprints, url_prefix='/api')
 # CORS(app, origins=["http://localhost:3000", "ws://localhost:3000"], supports_credentials=True)
-app.config['SECRET_KEY'] = "wkvbh;riqnvrhfgfv"
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql://root:dANiel_092021mysql@127.0.0.1:3306/letschat"
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 db.app = app

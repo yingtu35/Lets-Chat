@@ -6,4 +6,6 @@ The chat application supports the following cool features:
 2. Google sign in feature
 3. Websocket connection in the chat room
 4. Search the room name you want to join with a search bar
-5. private room with password (to be implemented)
+
+Some features to be implemented in the future:
+1. private room with password

@@ -6,3 +6,4 @@ evenlet
 passlib
 google-auth
 requests
+python-dotenv
