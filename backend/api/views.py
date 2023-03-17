@@ -98,6 +98,7 @@ def signup():
                     birthday=birthday)
     db.session.add(new_user)
     db.session.commit()
+    session["username"] = username
     user = User.query.filter(User.username == username).first().serialize()
     return user
 
@@ -114,6 +115,8 @@ def user_auth():
         return Response("Unauthenticated", status=401)
     user = User.query.filter(User.username == username).first()
     if not user:
+        session.pop("username")
+        session.pop("room")
         return Response("Unauthenticated", status=401)
     user = user.serialize()
     return user
@@ -161,7 +164,8 @@ def create_room():
         # clear cookies
         session.pop('username', None)
         session.pop('room', None)
-        return Response(f"User already has a room {user.rid}", status=400)
+        # ! Should user be kicked out of the room? what if user is the host of the room
+        return Response(f"User already has a room {user.rid}. Please signin again", status=400)
 
     new_room = Room(name=room,
                     num_users=0,
@@ -218,10 +222,12 @@ def room_join(username):
         return Response(f"User {username} not found", status=401)
     # check if user is already in the room
     if user.rid is not None:
+        print(f"User already has a room {user.rid}")
         # clear cookies
         session.pop('username', None)
         session.pop('room', None)
-        return Response(f"User already has a room {user.rid}", status=400)
+        # ! Should user be kicked out of the room? what if user is the host of the room
+        return Response(f"User already has a room {user.rid}. Please signin again", status=400)
     
     # get the room
     room = Room.query.filter(Room.rid == rid).first()
@@ -247,7 +253,7 @@ def room_leave(username):
     rid = session.get("room")
     if not login_username or login_username != username:
         # clear cookies
-        # session.pop('username', None)
+        session.pop('username', None)
         session.pop('room', None)
         return Response("Unauthenticated", status=401)
     if not rid:
@@ -259,9 +265,9 @@ def room_leave(username):
     user = User.query.filter(User.username == username).first()
     if not user:
         # clear cookies
-        # session.pop('username', None)
+        session.pop('username', None)
         session.pop('room', None)
-        return Response(f"User {username} not found", status=401)
+        return Response(f"User {username} not found. Please signin again", status=401)
     if user.rid != rid:
         session.pop('room', None)
         return Response(f"You are not in room {rid}", status=403)
@@ -290,6 +296,7 @@ def room_leave(username):
 @api_blueprints.route("/rooms/<string:username>", methods=['GET'])
 def user_in_room(username):
     login_username = session.get("username")
+    rid = session.get("room")
     # username = session.get("username")
     if not login_username or login_username != username:
         # clear cookies
@@ -300,15 +307,31 @@ def user_in_room(username):
     # get the user
     user = User.query.filter(User.username == username).first()
     if not user:
+        # clear cookies
+        session.pop('username', None)
+        session.pop('room', None)
         return Response(f"User {username} not found", status=401)
-    if user.rid is None:
+    if not rid:
         return Response(f"User not in any room", status=404)
-    room = user.room
+    if user.rid is not None:
+        user.rid = None
+        db.session.commit()
+        # return Response(f"User not in any room", status=404)
+    room = Room.query.filter(Room.rid == rid).first()
+    if not room:
+        session.pop("room")
+        return Response(f"Room {rid} not found or has been deleted", status=404)
     
-    session["room"] = room.rid
+    # check if room reach maximum capacity
+    if room.num_users >= room.capacity:
+        session.pop("room")
+        return Response(f"Room {rid} already full. Try join it again", status=403)
+        
+    # session["room"] = room.rid
     room = room.serialize()
     return room
 
+# TODO: Should combine users_in_room and room_messages into one endpoint
 @api_blueprints.route("/room/users", methods=['GET'])
 def users_in_room():
     username = session.get("username")
@@ -316,7 +339,7 @@ def users_in_room():
     # TODO: should clear rid
     if not username:
         session.pop('room', None)
-        return Response(f"You are not loggined", status=401)
+        return Response(f"You are not loggined. please signin again", status=401)
     if not rid:
         session.pop("room", None)
         return Response(f"Room {rid} not found", status=404)
@@ -326,8 +349,9 @@ def users_in_room():
         return Response(f"Room {rid} not found", status=404)
     user = User.query.filter(User.username == username).first()
     if not user:
+        session.pop("username")
         session.pop('room', None)
-        return Response(f"User {username} not found", status=401)
+        return Response(f"User {username} not found. please signin again", status=401)
     # if user.rid != rid:
     #     return Response(f"You are not in room {rid}", status=403)
     
@@ -342,7 +366,7 @@ def room_messages():
     # TODO: should clear cookies
     if not username:
         session.pop('room', None)
-        return Response(f"You are not loggined", status=401)
+        return Response(f"You are not loggined. please signin again", status=401)
     if not rid:
         session.pop("room", None)
         return Response(f"Room {rid} not found", status=404)
@@ -352,8 +376,9 @@ def room_messages():
         return Response(f"Room {rid} not found", status=404)
     user = User.query.filter(User.username == username).first()
     if not user:
+        session.pop("username")
         session.pop('room', None)
-        return Response(f"User {username} not found", status=401)
+        return Response(f"User {username} not found. please signin again", status=401)
     # if user.rid != rid:
     #     return Response(f"You are not in room {rid}", status=403)
     

@@ -45,11 +45,11 @@ class Room(db.Model):
     num_users = sa.Column(sa.Integer)
     capacity = sa.Column(sa.Integer)
     password = sa.Column(sa.String(16), nullable=True, default=generate_room_password())
-    # ! host_uid should be unique if one user can only create one room
-    host_uid = sa.Column(sa.Integer, sa.ForeignKey('user.uid', ondelete="CASCADE"), nullable=False, unique=True)
+    # ! host_uid is not unique because temporarily there could be empty room to be deleted
+    host_uid = sa.Column(sa.Integer, sa.ForeignKey('user.uid', ondelete="CASCADE"), nullable=False)
     
     users = db.relationship("User", back_populates="room", foreign_keys="User.rid")
-    messages = db.relationship("Message", back_populates="room")
+    messages = db.relationship("Message", back_populates="room", cascade="all, delete", passive_deletes=True)
     
     def serialize(self):
         d = Serializer.serialize(self)
@@ -63,8 +63,9 @@ class Message(db.Model):
     msg_id = sa.Column(sa.Integer, primary_key=True)
     msg = sa.Column(sa.String(255), nullable=False)
     createdAt = sa.Column(sa.DateTime, nullable=False)
-    uid = sa.Column(sa.Integer, sa.ForeignKey('user.uid'), nullable=False)
-    rid = sa.Column(sa.Integer, sa.ForeignKey('room.rid'), nullable=False)
+    # ! When room is deleted, messages are not deleted
+    uid = sa.Column(sa.Integer, sa.ForeignKey('user.uid', ondelete="SET NULL"), nullable=True)
+    rid = sa.Column(sa.Integer, sa.ForeignKey('room.rid', ondelete="CASCADE", onupdate="CASCADE"), nullable=True)
     
     user = db.relationship("User", back_populates="messages")
     room = db.relationship("Room", back_populates="messages")

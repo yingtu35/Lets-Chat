@@ -161,6 +161,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         .getAllUsersInRoom()
         .then(returnedUsers => {
             console.log(returnedUsers);
+            // ! race condition between socket connection and getAllUsers function. Sometimes get duplicate username
             setUsers(returnedUsers.concat(user.username));
         })
         .catch(error => {

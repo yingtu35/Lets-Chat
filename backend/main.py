@@ -42,7 +42,6 @@ def connect():
     user.rid = rid
     room.num_users += 1
     db.session.commit()
-    # TODO: Should add room number of users?
 
 @socketio.on("disconnect")
 def disconnect():
@@ -69,28 +68,47 @@ def disconnect():
     leave_room(rid)
     emit("leave", {"username": username, "message": "has left the room"}, to=rid)
     # session.pop("room", None)
-    # TODO: Temporary solution, should revise the logic
-    # ! User is kicked out everytime page is refreshed
-    if not session.get("room"):
-        print(f"{username} leave the room")
+    print(f"{username} leave the room")
 
-        # user is not the host
-        if user.uid != room.host_uid:
-            user.rid = None
-            room.num_users -= 1
-        # user is host, assign another user as host
-        elif room.num_users > 1:
+    # TODO: room should not delete right away, allow room temporarily with 0 users, allow user temporarily have more than one room (with some rooms haven't deleted)
+    # TODO: Should write an automated script to delete all rooms with 0 users.
+    if user.uid == room.host_uid:
+        rid = session.get("room")
+        print(f"host {username} left the room {rid}")
+        if room.num_users > 1:
+            print("Assign a new host")
             users = room.users
             for other_user in users:
                 if other_user.uid != room.host_uid:
                     room.host_uid = other_user.uid
+                    print(f"new host uid {other_user.uid} assigned")
                     break
-            user.rid = None
-            room.num_users -= 1
-        # user is host, delete the whole room
-        else:
+            print(f"No user in the room. delete the room")
+        # normal procedure, no refresh or closing page
+        elif rid: 
+            print(f"room {rid} will be deleted")
             db.session.delete(room)
-        db.session.commit()
+            db.session.commit()
+            return
+    user.rid = None
+    room.num_users -= 1
+    # # user is not the host
+    # if user.uid != room.host_uid:
+    #     user.rid = None
+    #     room.num_users -= 1
+    # # user is host, assign another user as host
+    # elif room.num_users > 1:
+    #     users = room.users
+    #     for other_user in users:
+    #         if other_user.uid != room.host_uid:
+    #             room.host_uid = other_user.uid
+    #             break
+    #     user.rid = None
+    #     room.num_users -= 1
+    # # user is host, delete the whole room
+    # else:
+    #     db.session.delete(room)
+    db.session.commit()
 
 @socketio.on("chat")
 def handle_chat(data):

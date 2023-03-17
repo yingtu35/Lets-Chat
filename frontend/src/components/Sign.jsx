@@ -35,6 +35,7 @@ const SignUpForm = ({onSignUpSuccess}) => {
                 onSignUpSuccess(returnedUser);
             })
             .catch(error => {
+                // TODO: Show error to the user
                 console.log(error.response.data);
             })
     };
