@@ -1,4 +1,10 @@
-const Header = () => {
+import { useContext } from "react"
+import { UserContext } from "../App";
+import SignServices from "../services/SignServices";
+
+const Header = ({onLogOutSuccess}) => {
+    const user = useContext(UserContext);
+
     const headerStyle = {
         display: "flex",
         flexDirection: "row",
@@ -48,6 +54,16 @@ const Header = () => {
         height: "50px"
     }
 
+    const handleLogOutClick = () => {
+        SignServices
+            .LogOut()
+            .then(data => {
+                console.log(data);
+                onLogOutSuccess();
+            })
+            .catch(error => console.log(error));
+    }
+
     return (
         <div style={headerStyle}>
             <div style={appTitleStyle}>
@@ -56,10 +72,13 @@ const Header = () => {
             </div>
             <div style={navBarStyle}>
                 <button style={navItemStyle}>Dark Mode</button>
-                <button style={navItemStyle}>Sign In</button>
+                {user && <button style={navItemStyle} onClick={handleLogOutClick}>Log Out</button>}
                 <div style={userInfoStyle}>
                     <div style={userImageStyle}></div>
-                    <span>Username</span>
+                    {user
+                        ? <span>{user.username}</span>
+                        : <span>Username</span>
+                    }
                 </div>
             </div>
         </div>

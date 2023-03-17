@@ -64,7 +64,7 @@ function App() {
   return (
     <UserContext.Provider value={curUser}>
     <div className="App">
-      <Header />
+      <Header onLogOutSuccess={onLogOutSuccess} />
       <Router>
         <Routes>
           <Route path="/" element={curRoom 

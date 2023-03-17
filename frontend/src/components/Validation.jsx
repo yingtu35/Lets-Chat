@@ -47,6 +47,14 @@ const validatePassword = (password, setPwdError) => {
     return true;
 }
 
+const validateCfmPwd = (password, cfmPwd, setCfmPwdError) => {
+    if (password !== cfmPwd) {
+        setCfmPwdError("Password does not match. Please check again")
+        return;
+    }
+    return true;
+}
+
 const validateBirthday = (birthday, setBirthError) => {
     const birthformat = /^\d{4}-\d{2}-\d{2}$/;
     if (birthday !== "" && !birthday.match(birthformat)) {
@@ -60,5 +68,6 @@ export default {
     validateEmail,
     validateUsername,
     validatePassword,
+    validateCfmPwd,
     validateBirthday
 }
