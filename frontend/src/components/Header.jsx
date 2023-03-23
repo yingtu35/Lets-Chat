@@ -1,6 +1,8 @@
 import { useContext } from "react"
 import { UserContext } from "../App";
 import SignServices from "../services/SignServices";
+import { Button } from "@chakra-ui/react";
+import { FaUserCircle } from "react-icons/fa"
 
 const Header = ({onLogOutSuccess}) => {
     const user = useContext(UserContext);
@@ -23,7 +25,9 @@ const Header = ({onLogOutSuccess}) => {
     }
 
     const navItemStyle = {
-        margin: "0 5px"
+        margin: "0 5px",
+        borderRadius: "10px",
+        cursor: "pointer"
     }
 
     const userInfoStyle = {
@@ -49,9 +53,9 @@ const Header = ({onLogOutSuccess}) => {
     }
 
     const userImageStyle = {
-        backgroundColor: "green",
         width: "50px",
-        height: "50px"
+        height: "50px",
+        cursor: "pointer"
     }
 
     const handleLogOutClick = () => {
@@ -71,14 +75,11 @@ const Header = ({onLogOutSuccess}) => {
                 <h1 >Let's Chat</h1>
             </div>
             <div style={navBarStyle}>
-                <button style={navItemStyle}>Dark Mode</button>
-                {user && <button style={navItemStyle} onClick={handleLogOutClick}>Log Out</button>}
+                <Button style={navItemStyle}>Dark Mode</Button>
+                {user && <Button style={navItemStyle} onClick={handleLogOutClick}>Log Out</Button>}
                 <div style={userInfoStyle}>
-                    <div style={userImageStyle}></div>
-                    {user
-                        ? <span>{user.username}</span>
-                        : <span>Username</span>
-                    }
+                    <FaUserCircle style={userImageStyle} />
+                    {user && <span>{user.username}</span>}
                 </div>
             </div>
         </div>

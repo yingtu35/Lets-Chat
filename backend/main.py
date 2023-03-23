@@ -72,8 +72,7 @@ def disconnect():
     emit("leave", {"username": username, "message": "has left the room"}, to=rid)
     # session.pop("room", None)
     print(f"{username} leave the room")
-
-    # TODO: room should not delete right away, allow room temporarily with 0 users, allow user temporarily have more than one room (with some rooms haven't deleted)
+    
     # TODO: Should write an automated script to delete all rooms with 0 users.
     if user.uid == room.host_uid:
         rid = session.get("room")

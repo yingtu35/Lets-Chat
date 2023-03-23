@@ -1,6 +1,12 @@
 .App {
   border: 1px solid red;
+  background-image: url("./images/background.jpg");
+  background-size: contain;
   /* padding: 10px; */
+}
+
+.signBarButton:hover {
+  font-size: 1.2rem;
 }
 
 /* .App-logo {

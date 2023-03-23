@@ -3,9 +3,12 @@ from .models import db, Serializer, User, Room
 from .utils import verify_password, hash_password
 from google.oauth2 import id_token
 from google.auth.transport.requests import Request
+import os
+from dotenv import load_dotenv
+load_dotenv()
 api_blueprints = Blueprint('api', __name__)
 
-CLIENT_ID = "366291414162-ttot02sq80dmapdd42l8ns8trk77q30e.apps.googleusercontent.com"
+CLIENT_ID = os.getenv("CLIENT_ID")
 @api_blueprints.route("/home")
 def home():
     return {

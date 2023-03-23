@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AiOutlineEyeInvisible } from "react-icons/ai"
 import Validation from "./Validation";
 import SignServices from "../services/SignServices";
-import GoogleSignIn from "./GoogleSignIn";
+import { Divider } from '@chakra-ui/react'
 
 const SignUpForm = ({onSignUpSuccess}) => {
     const [name, setName] = useState("");
@@ -21,7 +21,6 @@ const SignUpForm = ({onSignUpSuccess}) => {
     const [birthdayError, setBirthError] = useState("");
 
     const signUpFormStyle = {        
-        border: '1px solid red',
         display: "flex",
         flexDirection: "column",
     }
@@ -31,6 +30,14 @@ const SignUpForm = ({onSignUpSuccess}) => {
         boxSizing: "border-box",
         height: "25px",
         margin: "5px 0"
+    }
+
+    const signUpButtonStyle = {
+        height: "50px",
+        backgroundColor: "lightgreen",
+        borderRadius: "10px",
+        cursor: "pointer",
+        marginTop: "5px"
     }
 
     const handleSignUpClick = async (e) => {
@@ -118,13 +125,13 @@ const SignUpForm = ({onSignUpSuccess}) => {
                     type="text" 
                     id="new_birthday"
                     value={birthday}
-                    placeholder="1997-03-05"
+                    placeholder="YYYY-MM-DD"
                     onChange={(e) => handleValueChange(e.target.value, setBirth, setBirthError)} 
                 />
                 <br/>            
                 {birthdayError && (<small>{birthdayError}</small>)}
             </div>
-            <button type="submit" onClick={handleSignUpClick}>Sign up</button>
+            <button style={signUpButtonStyle} type="submit" onClick={handleSignUpClick}>Sign up</button>
         </form>
     );
 };
@@ -137,31 +144,44 @@ const SignInForm = ({onLogInSuccess}) => {
     const [checkBox, setCheckBox] = useState(false);
 
     const socialSignInStyle = {
-        border: '1px solid red',
         display: "flex",
         flexDirection: "column"
     }
 
     const signInButtonStyle = {
         width: "100%",
-        margin: "0 auto"
+        height: "50px",
+        margin: "0 auto",
+        backgroundColor: "lightgreen",
+        borderRadius: "10px",
+        cursor: "pointer"
     }
     
     const signInFormStyle = {        
-        border: '1px solid red'
+        display: "flex",
+        flexDirection: "column",
     }
 
     const signInSettingStyle = {
         display: "flex",
         flexDirection: "row",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        margin: "5px"
     }
 
     const inputStyle = {
         width: "100%",
         boxSizing: "border-box",
         height: "25px",
-        margin: "5px 0"
+        margin: "5px 0",
+        borderRadius: "5px"
+    }
+
+    const dividerStyle = {
+        width: "90%",
+        height: "1px",
+        backgroundColor: "grey",
+        margin: "10px"
     }
 
     const isrememberMe = () => {
@@ -240,12 +260,21 @@ const SignInForm = ({onLogInSuccess}) => {
     }, [])
 
     return (
-        <div style={{border: "1px solid blue"}}>
+        <div>
+            <div style={{textAlign: "center"}}>
+                <h4>Social Login</h4>
+            </div>
             <div style={socialSignInStyle}>
-                <div style={signInButtonStyle} id="signInDiv"></div>
-                <button style={signInButtonStyle}>Another Button</button>
+                <div id="signInDiv"></div>
+                {/* <button style={signInButtonStyle}>Another Button</button> */}
+            </div>
+            <div style={{display: "flex", justifyContent: "center"}}>
+                <div style={dividerStyle} />
             </div>
             <form style={signInFormStyle}>
+                <div style={{textAlign: "center"}}>
+                    <h4>Login</h4>
+                </div>
                 <div>
                     <label htmlFor="signin_username">Username</label><br/>
                     <input
@@ -290,36 +319,44 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
     const [sign, setSign] = useState(true);
 
     const signContainerStyle = {
-        border: "1px solid red",
         margin: "100px 0 100px 0",
         display: "flex",
         flexDirection: "row"
     }
     const signStyle = {
-        border: '1px solid blue',
+        backgroundColor: "whitesmoke",
+        border: '1px solid grey',
+        borderRadius: "20px",
+        boxShadow: "2px 2px",
         margin: "0 auto",
         width: "400px",
-        padding: "5px"
+        padding: "20px"
     }
 
     const signBarStyle = {
-        border: '1px solid red',
+        borderRadius: "5px",
+        backgroundColor: "lightgrey",
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-around",
-        marginBottom: "10px"
+        marginBottom: "15px"
     }
 
     const signBarButtonStyle = {
-        border: '1px solid blue'
+        height: "40px",
+        backgroundColor: "transparent",
+        border: "none",
+        cursor: "pointer",
+        color: "black",
     }
+
 
     return(
         <div style={signContainerStyle}>
             <div style={signStyle}>
                 <nav style={signBarStyle}>
-                    <button style={signBarButtonStyle} onClick={() => setSign(true)}>Sign In</button>
-                    <button style={signBarButtonStyle} onClick={() => setSign(false)}>Sign Up</button>
+                    <button className="signBarButton" style={signBarButtonStyle} onClick={() => setSign(true)}>Sign In</button>
+                    <button className="signBarButton" style={signBarButtonStyle} onClick={() => setSign(false)}>Sign Up</button>
                 </nav>
                 {sign
                 ? <SignInForm onLogInSuccess={onLogInSuccess}/>
