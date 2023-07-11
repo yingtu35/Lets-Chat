@@ -1,8 +1,12 @@
 import React, { useState, useEffect, createContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import "./App.css"
+import Header from './components/Header';
+import Footer from './components/Footer';
 import Home from './components/Home';
 import Sign from './components/Sign';
 import Room from './components/Room';
+import RoomServices from './services/RoomServices';
 import UserServices from './services/UserServices';
 
 export const UserContext = createContext(null)
@@ -32,22 +36,35 @@ function App() {
   }
 
   useEffect(() => {
+    UserServices
+      .UserAuth()
+      .then(user => {
+        console.log(user);
+        setCurUser(user);
+      })
+      .catch(error =>{
+        console.log(error);
+      }) 
+  }, [])
+
+  useEffect(() => {
     if (curUser) {
-      UserServices
-        .UserInRoom(curUser.username)
-        .then(returnedRoom => {
-          console.log(returnedRoom);
-          setCurRoom(returnedRoom);
-        })
-        .catch(error => {
-          console.log(error);
-        })
+      RoomServices
+      .getUserRoom(curUser.username)
+      .then(room => {
+        console.log(room);
+        setCurRoom(room);
+      })
+      .catch(error => {
+        console.log(error);
+      })
     }
   }, [curUser])
 
   return (
     <UserContext.Provider value={curUser}>
     <div className="App">
+      <Header onLogOutSuccess={onLogOutSuccess} />
       <Router>
         <Routes>
           <Route path="/" element={curRoom 
@@ -64,6 +81,7 @@ function App() {
                                   : <Navigate to={"/"} />} />
         </Routes>
       </Router>
+      <Footer />
     </div>
     </UserContext.Provider>
   );
