@@ -2,9 +2,10 @@ import { useState, useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import RoomServices from "../services/RoomServices";
-import SignServices from "../services/SignServices";
+// import SignServices from "../services/SignServices";
 import Rooms from "./Rooms";
 
+// TODO: checkout react hook form
 const CreateRoom = ({roomName, onRoomNameChange, handleCreateRoomClick}) => {
     const createRoomFormStyle = {
         border: '1px solid red',
@@ -44,7 +45,7 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
     const user = useContext(UserContext);
     const [rooms, setRooms] = useState([]);
     const [roomName, setRoomName] = useState("");
-    const [roomPassword, setRoomPassword] = useState("");
+    // const [roomPassword, setRoomPassword] = useState("");
     const [errorMsg, setError] = useState("");
 
     const homeContainerStyle = {
@@ -63,9 +64,9 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
         border: "1px solid red"
     }
 
-    const userInfoStyle = {
-        border: '1px solid red'
-    }
+    // const userInfoStyle = {
+    //     border: '1px solid red'
+    // }
 
     const handleCreateRoomClick = async (e) => {
         e.preventDefault();
@@ -144,15 +145,15 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
             })
     };
 
-    const handleLogOutClick = () => {
-        SignServices
-            .LogOut()
-            .then(data => {
-                console.log(data);
-                onLogOutSuccess();
-            })
-            .catch(error => console.log(error));
-    }
+    // const handleLogOutClick = () => {
+    //     SignServices
+    //         .LogOut()
+    //         .then(data => {
+    //             console.log(data);
+    //             onLogOutSuccess();
+    //         })
+    //         .catch(error => console.log(error));
+    // }
 
     const getRooms = () => {
         RoomServices
