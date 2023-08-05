@@ -108,7 +108,8 @@ Using WebSocket protocol, users can chat easily in chat rooms they create or fro
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Follow these steps to run the web application in development mode.
+**Currently there are issues related to [gsi](https://developers.google.com/identity/gsi/web/reference/js-reference#google.accounts.id.renderButton) so that the backend flask server cannot host the frontend production code.** 
+To test the application in development mode, you have to run the flask server and frontend as separated applications
 
 ### Prerequisites
 
@@ -137,10 +138,27 @@ Follow these steps to run the web application in development mode.
    ```sh
    pip install -r requirements.txt
    ```
-4. Start the server
+4. Create a .env file in the root directory, add the following environment variables
     ```sh
-    npm start
+    SECRET_KEY=PASTE_YOUR_SECRET_KEY_HERE
+    SQLALCHEMY_DATABASE_URI=PASTE_YOUR_DATABASE_URI_HERE
+    CLIENT_ID=PASTE_YOUR_GOOGLE_API_CLIENT_ID_HERE
     ```
+    Read [flask-sqlalchemy configuration][sqlalchemy-url] here for connecting to your database
+    Read [google_API][google_API-url] here for setting up your google client id.
+5. Create a .env file in the client directory and add the REACT_APP_CLIENT_ID that has the same value as CLIENT_ID you added in the previous step
+   ```sh
+   REACT_APP_CLIENT_ID=PASTE_YOUR_GOOGLE_API_CLIENT_ID_HERE
+   ```
+6. Install all dependencies for the client app
+   ```sh
+   cd client
+   npm install
+   ```
+7. Run `main.py` in the root directory to start the app
+   ```sh
+   python main.py
+   ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -162,8 +180,11 @@ Enjoy the short demo using ios simulator to see how Lets-Chat works.
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Upload to App store and Google Play
-- [ ] Enhance features in rate-repository-api (much harder)
+- [ ] Allow users to create private room
+- [ ] Responsive web design
+- [ ] Rooms are paginated
+- [ ] Add other third party social login
+- [ ] Friend systems
 - [ ] Welcome any new advice!
     <!-- - [ ] Nested Feature -->
 
@@ -214,10 +235,9 @@ Project Link: [https://github.com/yingtu35/Lets-Chat](https://github.com/yingtu3
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* [Full Stack open](https://fullstackopen.com/en/)
-* [Python](https://Python.org/)
-* [React Navigation](https://reactnavigation.org/)
-* [React Native Paper](https://reactnativepaper.com/)
+* [Flask](https://flask.palletsprojects.com/en/2.3.x/)
+* [Flask-sqlalchemy](https://flask-sqlalchemy.palletsprojects.com/en/3.0.x/)
+* [Google Identity](https://developers.google.com/identity/gsi/web/guides/overview)
 <!-- * []()
 * []() -->
 
@@ -252,3 +272,6 @@ Project Link: [https://github.com/yingtu35/Lets-Chat](https://github.com/yingtu3
 [MUI.com]: https://img.shields.io/badge/MUI-007FFF?style=for-the-badge&logo=MUI&logoColor=C21325
 [MUI-url]: https://mui.com/
 [demo-url]: https://youtu.be/7ITpYW81BAs
+[google_API-url]: https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid
+[sqlalchemy-url]: https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
+

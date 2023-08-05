@@ -2,7 +2,7 @@ from flask import Flask, Response, session, send_from_directory
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
 from api.models import db, User, Room, Message
 from api.views import api_blueprints
-# from flask_cors import CORS
+from flask_cors import CORS
 from datetime import datetime
 from dotenv import load_dotenv
 import os
@@ -11,6 +11,7 @@ load_dotenv()
 app = Flask(__name__, static_folder="./client/build")
 app.register_blueprint(api_blueprints, url_prefix='/api')
 # CORS(app, origins=["http://localhost:3000", "ws://localhost:3000"], supports_credentials=True)
+CORS(app)
 app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI")
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -21,6 +22,11 @@ db.init_app(app)
 # Create tables
 with app.app_context():
     db.create_all()
+
+# @app.after_request
+# def set_headers(response):
+#     response.headers["Referrer-Policy"] = 'no-referrer-when-downgrade'
+#     return response
 
 # Serving frontend static files
 

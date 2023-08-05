@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import RoomServices from "../services/RoomServices";
 import { io } from "socket.io-client"
+import { Grid, Typography, Button, TextField } from "@mui/material";
+import User from "./User";
 
 let socket;
 
@@ -27,20 +29,21 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         display: "flex",
         flexDirection: "row",
         justifyContent: "center",
+        gap: "10px"
     }
 
     const roomLeftStyle = {
         border: "1px solid blue"
     }
 
-    const roomRightStyle = {
-        border: "1px solid green"
-    }
+    // const roomRightStyle = {
+    //     border: "1px solid green"
+    // }
 
-    const roomTitleStyle = {
-        border: '1px solid red',
-        textAlign: "center",
-    }
+    // const roomTitleStyle = {
+    //     border: '1px solid red',
+    //     textAlign: "center",
+    // }
 
     const roomMessagesStyle = {
         border: '1px solid blue',
@@ -48,9 +51,9 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         width: "800px"
     }
 
-    const messageInputFormStyle = {
-        border: '1px solid green'
-    }
+    // const messageInputFormStyle = {
+    //     border: '1px solid green',
+    // }
 
     const roomUsersStyle = {
         border: '1px solid purple'
@@ -155,7 +158,6 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         return () => socket.disconnect(); 
     }, [])
     
-    //TODO: Get messages history and all users in the room
     useEffect(() => {
         RoomServices
         .getAllUsersInRoom()
@@ -166,7 +168,6 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         })
         .catch(error => {
             console.log(error);
-            // TODO: should redirect to login page
             const status = error.response.status;
             const data = error.response.data;
             if (status === 401) {
@@ -217,37 +218,29 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         })
     }, [])
 
+    // TODO: Message component is needed to style each message
     return (
         <div style={roomStyle}>
             <div style={roomLeftStyle}>
-                <div style={roomTitleStyle}>
-                    <h2 >{rid} {roomName}</h2>
-                </div>
+                <Grid sx={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+                    <Grid>
+                        <Typography variant="h4">{roomName}</Typography>
+                    </Grid>
+                    <Grid>
+                        <Button variant="contained" onClick={handleLeaveRoomClick}>Leave</Button>
+                    </Grid>
+                </Grid>
                 <div style={roomMessagesStyle}>
                 {messages.map(msg => <Message key={msg.msg_id} username={msg.username} msg={msg.msg} createdAt={msg.createdAt} />)}
                 </div>
-                <div style={messageInputFormStyle}>
-                    <div style={{overflow: "hidden"}}>
-                        <input
-                            style={{width: "100%"}} 
-                            type="text" 
-                            rows="3"
-                            value={message} 
-                            placeholder="message"
-                            onChange = {(e) => setMessage(e.target.value)} />
-                    </div>
-                    <button style={{float: "right"}} onClick={sendMessage}>Send</button>
-                </div>
+                <Grid sx={{display: "flex", flexDirection: "row"}}>
+                    <TextField multiline fullWidth maxRows={3} value={message} placeholder="message" onChange={(e) => setMessage(e.target.value)} />
+                    <Button variant="contained" onClick={sendMessage}>Send</Button>
+                </Grid>
             </div>
-            <div style={roomRightStyle}>
-                <div style={roomUsersStyle}>
-                    <h2>Users</h2>
-                    {users.map(user => <p key={user}>{user}</p>)}
-                </div>
-                <div style={leaveRoomButtonStyle}>
-                    <button onClick={handleLeaveRoomClick}>Leave Room</button>
-                </div>
-            </div>
+            <Grid sx={{display: "flex", flexDirection: "column", gap: 1}}>
+                {users.map(user => <User key={user} user={user} />)}
+            </Grid>
         </div>
     )
 }

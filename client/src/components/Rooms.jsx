@@ -1,64 +1,53 @@
-import { useState } from "react"
+// import { useState } from "react"
+import { Grid } from "@mui/material";
+import Card from "@mui/material/Card";
+import CardActions from "@mui/material/CardActions";
+import CardContent from "@mui/material/CardContent";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
-const RoomFilter = ({query, setQuery}) => {
-    const searchBarStyle = {
-        border: '1px solid red'
-    }
-    const inputStyle = {
-        width: "100%"
-    }
-    return(
-    <form style={searchBarStyle}>
-        <input style={inputStyle}
-               id="roomSearch"
-               placeholder="Search the room name"
-               value={query}
-               onChange={(e) => setQuery(e.target.value)}
-        />
-    </form>
+const RoomCard = ({ room, handleJoinRoomClick }) => {
+    return (
+        <Card sx={{ minWidth: 275, backgroundColor: "ghostwhite" }}>
+        <CardContent>
+            <Typography variant="h5" gutterBottom>
+            {room.name}
+            </Typography>
+            <Typography sx={{ mb: 1.5 }}>
+            {room.num_users}/{room.capacity}
+            </Typography>
+            {/* <Typography variant="body2">{blog.url}</Typography> */}
+        </CardContent>
+        <CardActions sx={{display: "flex", flexDirection:"row-reverse"}}>
+            <Button variant="contained" size="small" onClick={() => handleJoinRoomClick(room.rid)}>Join</Button>
+        </CardActions>
+    </Card>
     )
 }
 
-const RoomDisplay = ({room, handleJoinRoomClick}) => {
-    const roomInfoStyle = {
-        border: '1px solid green',
-        breakInside: "avoid",
-        width: "500px"
-    }
-    return(
-        <div>
-            <div style={roomInfoStyle}>
-                <p>rid: {room.rid}</p>
-                <p>Room: {room.name}</p>
-                <p>Current Users: {room.num_users}/{room.capacity}</p>
-                <p>Host Id:{room.host_uid}</p>
-                <button onClick={() => handleJoinRoomClick(room.rid)}>Join room</button>
-            </div>
-        </div>
-    )    
-}
-
-const Rooms = ({rooms, handleJoinRoomClick}) => {
+const Rooms = ({rooms, handleJoinRoomClick, roomQuery}) => {
     const roomsStyle = {        
         border: '1px solid red'
     }
-    const roomsTitleStyle = {
-        border: '1px solid blue'
-    }
-    const roomsViewStyle = {
-        columnCount: 2   
-    }
-
-    const [roomQuery, setRoomQuery] = useState("");
+    // TODO: Use pagination for displaying a certain number of rooms in each page
 
     const roomToShow = rooms.filter(room => room.name.toLowerCase().includes(roomQuery.toLowerCase()))
     return(
         <div style={roomsStyle}>
-            <h2 style={roomsTitleStyle}>Join a Room</h2>
-            <RoomFilter query={roomQuery} setQuery={setRoomQuery} />
-            <div style={roomsViewStyle}>
-                {roomToShow.map(room => <RoomDisplay key={room.rid} room={room} handleJoinRoomClick={handleJoinRoomClick} />)}
-            </div>
+            <Grid
+            container
+            spacing={2}
+            className="blogs"
+            sx={{
+            my: 1,
+            }}
+            >
+                {roomToShow.map((room) => (
+                <Grid key={room.rid} item xs={12} sm={6}>
+                    <RoomCard room={room} handleJoinRoomClick={handleJoinRoomClick} />
+                </Grid>
+            ))}
+        </Grid>
         </div>
     );
 };

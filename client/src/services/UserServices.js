@@ -1,8 +1,13 @@
 import axios from "axios";
 
-const UserAuth = () => {
-    const request = axios.get("/api/user/auth");
-    return request.then(response => response.data);
+const UserAuth = async () => {
+    const response = await axios.get("/api/user/auth");
+    return response.data;
 }
 
-export default {UserAuth};
+const getAllActiveUsers = async () => {
+    const response = await axios.get("/api/users")
+    return response.data
+}
+
+export default {UserAuth, getAllActiveUsers};

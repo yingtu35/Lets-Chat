@@ -17,7 +17,7 @@ def home():
     }
 
 # TODO: GitHub sign in
-    
+# TODO: If google sign in does not find a user, should create a user for him
 @api_blueprints.route('/session/google', methods=["POST"])
 def google_login():
     data = request.get_json()
@@ -105,6 +105,7 @@ def signup():
     user = User.query.filter(User.username == username).first().serialize()
     return user
 
+# TODO: should get all active users only
 @api_blueprints.route("/users", methods=['GET'])
 def users():
     users = User.query.filter(User.uid <= 10).all()

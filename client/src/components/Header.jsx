@@ -1,7 +1,7 @@
 import { useContext } from "react"
 import { UserContext } from "../App";
 import SignServices from "../services/SignServices";
-import { Button } from "@chakra-ui/react";
+import { Container, Box, Button } from "@mui/material"
 import { FaUserCircle } from "react-icons/fa"
 
 const Header = ({onLogOutSuccess}) => {
@@ -12,7 +12,8 @@ const Header = ({onLogOutSuccess}) => {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        border: '1px solid red'
+        // border: '1px solid red'
+        // backgroundColor: "ghostwhite"
     }
 
     const navBarStyle = {
@@ -24,11 +25,11 @@ const Header = ({onLogOutSuccess}) => {
         margin: "0 10px 0 0 "
     }
 
-    const navItemStyle = {
-        margin: "0 5px",
-        borderRadius: "10px",
-        cursor: "pointer"
-    }
+    // const navItemStyle = {
+    //     margin: "0 5px",
+    //     borderRadius: "10px",
+    //     cursor: "pointer"
+    // }
 
     const userInfoStyle = {
         margin: "0 5px",
@@ -41,9 +42,10 @@ const Header = ({onLogOutSuccess}) => {
     const appTitleStyle = {
         display: "flex",
         flexDirection: "row",
-        justifyContent: "center",
+        // justifyContent: "flex-",
         alignItems: "center",
-        border: "1px solid red"
+        // border: "1px solid red",
+        gap: 1
     }
 
     const logoImageStyle = {
@@ -69,20 +71,20 @@ const Header = ({onLogOutSuccess}) => {
     }
 
     return (
-        <div style={headerStyle}>
-            <div style={appTitleStyle}>
+        <Container sx={headerStyle}>
+            <Box sx={appTitleStyle}>
                 <div style={logoImageStyle}></div>
                 <h1 >Let's Chat</h1>
-            </div>
+            </Box>
             <div style={navBarStyle}>
-                <Button style={navItemStyle}>Dark Mode</Button>
-                {user && <Button style={navItemStyle} onClick={handleLogOutClick}>Log Out</Button>}
+                <Button variant="contained">Dark Mode</Button>
+                {user && <Button variant="contained" onClick={handleLogOutClick}>Log Out</Button>}
                 <div style={userInfoStyle}>
                     <FaUserCircle style={userImageStyle} />
                     {user && <span>{user.username}</span>}
                 </div>
             </div>
-        </div>
+        </Container>
     )
 }
 

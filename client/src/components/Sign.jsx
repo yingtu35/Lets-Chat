@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { AiOutlineEyeInvisible } from "react-icons/ai"
 import Validation from "./Validation";
 import SignServices from "../services/SignServices";
-import { Divider } from '@chakra-ui/react'
+
+import { Container, Box } from "@mui/material";
 
 const SignUpForm = ({onSignUpSuccess}) => {
     const [name, setName] = useState("");
@@ -238,7 +239,7 @@ const SignInForm = ({onLogInSuccess}) => {
     useEffect(() => {
         /*global google*/
         google.accounts.id.initialize({
-            client_id: "366291414162-ttot02sq80dmapdd42l8ns8trk77q30e.apps.googleusercontent.com",
+            client_id: process.env.REACT_APP_CLIENT_ID,
             callback: handleCredentialResponse
         })
 
@@ -319,7 +320,7 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
     const [sign, setSign] = useState(true);
 
     const signContainerStyle = {
-        margin: "100px 0 100px 0",
+        margin: "100px auto",
         display: "flex",
         flexDirection: "row"
     }
@@ -335,7 +336,7 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
 
     const signBarStyle = {
         borderRadius: "5px",
-        backgroundColor: "lightgrey",
+        backgroundColor: "lightgreen",
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-around",
@@ -352,7 +353,7 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
 
 
     return(
-        <div style={signContainerStyle}>
+        <Container style={signContainerStyle}>
             <div style={signStyle}>
                 <nav style={signBarStyle}>
                     <button className="signBarButton" style={signBarButtonStyle} onClick={() => setSign(true)}>Sign In</button>
@@ -362,7 +363,7 @@ const Sign = ({onLogInSuccess, onSignUpSuccess}) => {
                 ? <SignInForm onLogInSuccess={onLogInSuccess}/>
                 : <SignUpForm onSignUpSuccess={onSignUpSuccess}/>}
             </div>
-        </div>
+        </Container>
     );
 };
 
