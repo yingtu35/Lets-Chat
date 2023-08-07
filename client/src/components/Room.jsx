@@ -70,6 +70,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
     // const [rid, setRid] = useState(room.rid);
     // const [roomName, setRoomName] = useState(room.name);
     const [users, setUsers] = useState([]);
+    const [numUsers, setNumUsers] = useState(1);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
 
@@ -119,6 +120,14 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         setMessage('');
     }
 
+    const onKeyDown = (e) => {
+        // * 13 is "Enter"
+        if (e.keyCode === 13) {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+
     const createMessage = (username, message) => {
         // console.log(Date().toString())
         const newMessage = {
@@ -131,10 +140,19 @@ const Room = ({room, onLeaveRoomSuccess}) => {
     }
 
     const handleUserJoin = (username) => {
-        if (username === user.username) {
+        if (username !== user.username) {
+            setUsers(users => [...users, username]);
+            setNumUsers(numUsers => numUsers+1);
             return;
         }
-        setUsers(users => [...users, username]);
+        // setUsers(users => [...users, username]);
+    }
+
+    const handleUserLeave = (username) => {
+        if (username !== user.username) {
+            setUsers(users => users.filter(user => user !== username));
+            setNumUsers(numUsers => numUsers-1);
+        }
     }
 
     useEffect(() => {
@@ -151,8 +169,9 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         }))
 
         socket.on("leave", (data => {
-            console.log(data.username, data.message);
-            setUsers(users => users.filter(user => user !== data.username));
+            // console.log(data.username, data.message);
+            handleUserLeave(data.username);
+            // setUsers(users => users.filter(user => user !== data.username));
             createMessage(data.username, data.message);
         }))
 
@@ -165,7 +184,8 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         .then(returnedUsers => {
             console.log(returnedUsers);
             // ! race condition between socket connection and getAllUsers function. Sometimes get duplicate username
-            setUsers(returnedUsers.concat(user.username));
+            setUsers(users => returnedUsers.concat(user.username));
+            setNumUsers(numUsers => numUsers + returnedUsers.length);
         })
         .catch(error => {
             console.log(error);
@@ -225,22 +245,25 @@ const Room = ({room, onLeaveRoomSuccess}) => {
                     <Grid>
                         <Typography variant="h4">{room.name}</Typography>
                     </Grid>
-                    <Grid>
+                    <Grid sx={{display: "flex", flexDirection: "row", alignItems: "center", gap: 0.5}}>
+                        <Typography variant="h5">{numUsers}/{room.capacity}</Typography>
                         <Button variant="contained" onClick={handleLeaveRoomClick}>Leave</Button>
                     </Grid>
                 </Grid>
-                <Grid sx={{display: "flex", flexDirection: "column", border:"1px solid black", maxHeight: "70vh", overflow: "auto"}}>
-                    {messages.map(msg => <Message key={msg.msg_id} username={msg.username} msg={msg.msg} createdAt={msg.createdAt} />)}
+                <Grid sx={{display: "flex", flexDirection: "column-reverse", border:"1px solid black", maxHeight: "70vh", overflow: "auto"}}>
+                    <Grid>
+                        {messages.map(msg => <Message key={msg.msg_id} username={msg.username} msg={msg.msg} createdAt={msg.createdAt} />)}
+                    </Grid>
                 </Grid>
-                {/* <div style={roomMessagesStyle}>
-                {messages.map(msg => <Message key={msg.msg_id} username={msg.username} msg={msg.msg} createdAt={msg.createdAt} />)}
-                </div> */}
                 <Grid sx={{display: "flex", flexDirection: "row"}}>
-                    <TextField sx={{backgroundColor: "white"}} autoFocus multiline fullWidth maxRows={3} value={message} placeholder="message" onChange={(e) => setMessage(e.target.value)} />
+                    <TextField sx={{backgroundColor: "white"}} autoFocus multiline fullWidth maxRows={3} value={message} placeholder="message" onChange={(e) => setMessage(e.target.value)} onKeyDown={onKeyDown} />
                     <Button variant="contained" onClick={sendMessage}>Send</Button>
                 </Grid>
             </Grid>
             <Grid item sx={{display: "flex", flexDirection: "column", gap: 1, flexGrow: 1}}>
+                <Grid>
+                    <Typography variant="h4">Users in room</Typography>
+                </Grid>
                 <Users users={users} />
             </Grid>
         </Container>

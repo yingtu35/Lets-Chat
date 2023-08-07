@@ -89,6 +89,8 @@ Lets-Chat is a web application built on React and Flask.
 
 Using WebSocket protocol, users can chat easily in chat rooms they create or from other users.
 
+**None issues: When using SQLite, creating room will direct to wrong room**
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 

@@ -12,6 +12,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import UserServices from "../services/UserServices";
 
+import RefreshIcon from '@mui/icons-material/Refresh';
+
 const CreateRoom = ({roomName, onRoomNameChange, handleCreateRoomClick}) => {
     const [open, setOpen] = useState(false);
     const theme = useTheme();
@@ -254,11 +256,12 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
                     <Grid xs={4}>
                         <Typography variant="h4">Rooms</Typography>
                     </Grid>
-                    <Grid xs={8} sx={{display: "flex", flexDirection: "row", gap: 0.1}}>
+                    <Grid xs={8} sx={{display: "flex", flexDirection: "row", gap: 0.1, alignItems: "center"}}>
                         <RoomFilter query={roomQuery} setQuery={setRoomQuery} />
                         <CreateRoom roomName={roomName} 
                                         onRoomNameChange={(e) => setRoomName(e.target.value)}
                                         handleCreateRoomClick={handleCreateRoomClick} />                    
+                        <Button variant="contained" sx={{backgroundColor: "lightgreen"}} onClick={getRooms}><RefreshIcon /></Button>
                     </Grid>
                 </Grid>
                 <Rooms rooms={rooms} handleJoinRoomClick={handleJoinRoomClick} roomQuery={debouncedRoomQuery} />
@@ -268,8 +271,9 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
                     <Grid xs={4}>
                         <Typography variant="h4">Users</Typography>
                     </Grid>
-                    <Grid xs={8}>                
+                    <Grid xs={8} sx={{display: "flex", flexDirection: "row", gap: 0.1, alignItems: "center"}}>                
                         <UserFilter query={userQuery} setQuery={setUserQuery} />
+                        <Button variant="contained" sx={{backgroundColor: "lightgreen"}} onClick={getUsers}><RefreshIcon /></Button>
                     </Grid>
                 </Grid>
                 {/* <Typography>Users will be displayed here</Typography> */}
