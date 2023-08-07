@@ -5,9 +5,9 @@ const UserAuth = async () => {
     return response.data;
 }
 
-const getAllActiveUsers = async () => {
+const getAllUsers = async () => {
     const response = await axios.get("/api/users")
     return response.data
 }
 
-export default {UserAuth, getAllActiveUsers};
+export default {UserAuth, getAllUsers};

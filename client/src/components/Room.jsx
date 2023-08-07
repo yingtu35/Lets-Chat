@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../App";
 import RoomServices from "../services/RoomServices";
 import { io } from "socket.io-client"
-import { Grid, Typography, Button, TextField } from "@mui/material";
-import User from "./User";
+import { Container, Grid, Typography, Button, TextField } from "@mui/material";
+import Users from "./Users";
 
 let socket;
 
@@ -13,28 +13,30 @@ const Message = ({username, msg, createdAt}) => {
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
-        margin: "10px"
+        margin: "10px",
+        backgroundColor: "white",
+        padding: 1,
+        borderRadius: 3
     }
     return (
-        <div style={messageStyle}>
-            <span>{username}: {msg}</span>
-            <span>{createdAt}</span>
-        </div>
+        <Grid sx={messageStyle}>
+            <Typography>{username}: {msg}</Typography>
+            <Typography>{createdAt}</Typography>
+        </Grid>
     )
 }
 
 const Room = ({room, onLeaveRoomSuccess}) => {
     const roomStyle = {
-        border: '1px solid red',
+        // border: '1px solid red',
         display: "flex",
         flexDirection: "row",
-        justifyContent: "center",
         gap: "10px"
     }
 
-    const roomLeftStyle = {
-        border: "1px solid blue"
-    }
+    // const roomLeftStyle = {
+    //     border: "1px solid blue"
+    // }
 
     // const roomRightStyle = {
     //     border: "1px solid green"
@@ -45,28 +47,28 @@ const Room = ({room, onLeaveRoomSuccess}) => {
     //     textAlign: "center",
     // }
 
-    const roomMessagesStyle = {
-        border: '1px solid blue',
-        height: "500px",
-        width: "800px"
-    }
+    // const roomMessagesStyle = {
+    //     border: '1px solid blue',
+    //     height: "500px",
+    //     width: "800px"
+    // }
 
     // const messageInputFormStyle = {
     //     border: '1px solid green',
     // }
 
-    const roomUsersStyle = {
-        border: '1px solid purple'
-    }
+    // const roomUsersStyle = {
+    //     border: '1px solid purple'
+    // }
 
-    const leaveRoomButtonStyle = {
-        border: '1px solid orange'
-    }
+    // const leaveRoomButtonStyle = {
+    //     border: '1px solid orange'
+    // }
 
     const navigate = useNavigate();
     const user = useContext(UserContext);
-    const [rid, setRid] = useState(room.rid);
-    const [roomName, setRoomName] = useState(room.name);
+    // const [rid, setRid] = useState(room.rid);
+    // const [roomName, setRoomName] = useState(room.name);
     const [users, setUsers] = useState([]);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
@@ -80,7 +82,6 @@ const Room = ({room, onLeaveRoomSuccess}) => {
                 navigate("/");
             })
             .catch(error => {
-                // TODO: should redirect to login page
                 console.log(error);
                 const status = error.response.status;
                 const data = error.response.data;
@@ -113,7 +114,7 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         socket.emit("chat", {
             username: user.username,
             message: message,
-            rid: rid,
+            rid: room.rid,
         })
         setMessage('');
     }
@@ -196,7 +197,6 @@ const Room = ({room, onLeaveRoomSuccess}) => {
             setMessages(returnedMessages);
         })
         .catch(error => {
-            // TODO: should redirect to login page
             console.log(error);
             const status = error.response.status;
             const data = error.response.data;
@@ -218,30 +218,32 @@ const Room = ({room, onLeaveRoomSuccess}) => {
         })
     }, [])
 
-    // TODO: Message component is needed to style each message
     return (
-        <div style={roomStyle}>
-            <div style={roomLeftStyle}>
+        <Container maxWidth="lg" sx={roomStyle}>
+            <Grid item sx={{display: "flex", flexDirection: "column", flexGrow: 2}}>
                 <Grid sx={{display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
                     <Grid>
-                        <Typography variant="h4">{roomName}</Typography>
+                        <Typography variant="h4">{room.name}</Typography>
                     </Grid>
                     <Grid>
                         <Button variant="contained" onClick={handleLeaveRoomClick}>Leave</Button>
                     </Grid>
                 </Grid>
-                <div style={roomMessagesStyle}>
+                <Grid sx={{display: "flex", flexDirection: "column", border:"1px solid black", maxHeight: "70vh", overflow: "auto"}}>
+                    {messages.map(msg => <Message key={msg.msg_id} username={msg.username} msg={msg.msg} createdAt={msg.createdAt} />)}
+                </Grid>
+                {/* <div style={roomMessagesStyle}>
                 {messages.map(msg => <Message key={msg.msg_id} username={msg.username} msg={msg.msg} createdAt={msg.createdAt} />)}
-                </div>
+                </div> */}
                 <Grid sx={{display: "flex", flexDirection: "row"}}>
-                    <TextField multiline fullWidth maxRows={3} value={message} placeholder="message" onChange={(e) => setMessage(e.target.value)} />
+                    <TextField sx={{backgroundColor: "white"}} autoFocus multiline fullWidth maxRows={3} value={message} placeholder="message" onChange={(e) => setMessage(e.target.value)} />
                     <Button variant="contained" onClick={sendMessage}>Send</Button>
                 </Grid>
-            </div>
-            <Grid sx={{display: "flex", flexDirection: "column", gap: 1}}>
-                {users.map(user => <User key={user} user={user} />)}
             </Grid>
-        </div>
+            <Grid item sx={{display: "flex", flexDirection: "column", gap: 1, flexGrow: 1}}>
+                <Users users={users} />
+            </Grid>
+        </Container>
     )
 }
 

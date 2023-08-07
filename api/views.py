@@ -105,11 +105,11 @@ def signup():
     user = User.query.filter(User.username == username).first().serialize()
     return user
 
-# TODO: should get all active users only
 @api_blueprints.route("/users", methods=['GET'])
 def users():
     users = User.query.filter(User.uid <= 10).all()
     users = Serializer.serialize_list(users)
+    users = [user["username"] for user in users]
     return users
 
 @api_blueprints.route("/user/auth", methods=['GET'])

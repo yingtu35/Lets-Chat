@@ -5,13 +5,13 @@ import { UserContext } from "../App";
 import RoomServices from "../services/RoomServices";
 // import SignServices from "../services/SignServices";
 import Rooms from "./Rooms";
+import Users from "./Users";
 
 import { Container, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Slider, Box, Typography, Grid } from "@mui/material";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import UserServices from "../services/UserServices";
 
-// TODO: checkout react hook form
 const CreateRoom = ({roomName, onRoomNameChange, handleCreateRoomClick}) => {
     const [open, setOpen] = useState(false);
     const theme = useTheme();
@@ -94,6 +94,7 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
     const user = useContext(UserContext);
     const [rooms, setRooms] = useState([]);
     const [roomName, setRoomName] = useState("");
+    const [users, setUsers] = useState([]);
     // const [roomPassword, setRoomPassword] = useState("");
     const [errorMsg, setError] = useState("");
     const [roomQuery, setRoomQuery] = useState("");
@@ -208,13 +209,12 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
     //         .catch(error => console.log(error));
     // }
 
-    const getRooms = () => {
-        RoomServices
-        .getAllRooms()
-        .then(returnedRooms => {
-            setRooms(returnedRooms);
-        })
-        .catch(error => {
+    const getRooms = async () => {
+        try {
+            const returnedRooms = await RoomServices.getAllRooms();
+            setRooms(returnedRooms)
+        }
+        catch (error) {
             console.log(error);
             const status = error.response.status;
             const data = error.response.data;
@@ -227,21 +227,23 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
             else{
                 console.log(data);
             }
-        });
+        }
     }
 
     // TODO: Testing needed
-    const getActiveUsers = async () => {
-        const users = await UserServices.getAllActiveUsers()
-        console.log(users)
+    const getUsers = async () => {
+        const returnedUsers = await UserServices.getAllUsers()
+        console.log(returnedUsers)
+        setUsers(returnedUsers)
     }
 
     useEffect(() => {
-        getRooms();
+        const getInfo = async () => {
+            await Promise.allSettled([getRooms(), getUsers()])
+        }
+        getInfo();
         return () => {}
       }, [])
-    // TODO: Wrap CreateRoom into a modal, triggered by a button, and use react hook form for the input form
-    // TODO: Create Users component for displaying all users, UserCard component for displaying user information, paginated needed
     return (
         <Container maxWidth="lg" sx={homeContainerStyle}>
             <div style={homeRoomsStyle}>
@@ -270,7 +272,10 @@ const Home = ({onLogOutSuccess, onEnterRoomSuccess}) => {
                         <UserFilter query={userQuery} setQuery={setUserQuery} />
                     </Grid>
                 </Grid>
-                <Typography>Users will be displayed here</Typography>
+                {/* <Typography>Users will be displayed here</Typography> */}
+                <Grid sx={{display: "flex", flexDirection: "column", gap: 1}}>
+                    <Users users={users} userQuery={debouncedUserQuery} />
+                </Grid>
             </div>
         </Container>
     )
