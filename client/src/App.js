@@ -6,13 +6,12 @@ import {
   Navigate,
 } from 'react-router-dom';
 import './App.css';
-import Header from './components/Header';
 import ResponsiveAppBar from './components/NavBar';
 import Copyright from './components/Copyright';
-import Footer from './components/Footer';
 import Home from './components/Home';
 import Sign from './components/Sign';
 import Room from './components/Room';
+import About from './components/About';
 import RoomServices from './services/RoomServices';
 import UserServices from './services/UserServices';
 
@@ -72,6 +71,7 @@ function App() {
         <Router>
           <ResponsiveAppBar user={curUser} onLogOutSuccess={onLogOutSuccess} />
           <Routes>
+            <Route path="/about" element={<About />} />
             <Route
               path="/"
               element={
