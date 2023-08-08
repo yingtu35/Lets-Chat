@@ -74,7 +74,7 @@ function ResponsiveAppBar({ user, onLogOutSuccess }) {
               textDecoration: 'none',
             }}
           >
-            Let's Chat
+            Let&apos;s Chat
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -133,14 +133,14 @@ function ResponsiveAppBar({ user, onLogOutSuccess }) {
               textDecoration: 'none',
             }}
           >
-            Let's Chat
+            Let&apos;s Chat
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
               <Link key={page} style={navButton} to={`/${page}`}>
                 <Button
                   onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: 'black', display: 'block', backgroundColor: "lightgreen"}}
+                  sx={{ my: 2, color: 'black', display: 'block', backgroundColor: 'lightgreen'}}
                   variant='contained'
                 >
                   {page}
@@ -150,7 +150,7 @@ function ResponsiveAppBar({ user, onLogOutSuccess }) {
           </Box>
           {!user ? (
             <Link style={navButton} to={'/login'}>
-              <Button sx={{ my: 2, color: 'black', display: 'block', backgroundColor: "lightgreen" }}>
+              <Button sx={{ my: 2, color: 'black', display: 'block', backgroundColor: 'lightgreen' }}>
                 Login
               </Button>
             </Link>

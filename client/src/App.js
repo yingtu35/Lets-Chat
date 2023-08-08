@@ -1,10 +1,11 @@
-import React, { useState, useEffect, createContext } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from 'react-router-dom';
+import { UserContext } from './context/UserContext';
 import './App.css';
 import ResponsiveAppBar from './components/NavBar';
 import Copyright from './components/Copyright';
@@ -14,8 +15,6 @@ import Room from './components/Room';
 import About from './components/About';
 import RoomServices from './services/RoomServices';
 import UserServices from './services/UserServices';
-
-export const UserContext = createContext(null);
 
 function App() {
   const [curUser, setCurUser] = useState(null);
@@ -44,7 +43,7 @@ function App() {
   useEffect(() => {
     UserServices.UserAuth()
       .then((user) => {
-        console.log(user);
+        // console.log(user);
         setCurUser(user);
       })
       .catch((error) => {
@@ -56,7 +55,7 @@ function App() {
     if (curUser) {
       RoomServices.getUserRoom(curUser.username)
         .then((room) => {
-          console.log(room);
+          // console.log(room);
           setCurRoom(room);
         })
         .catch((error) => {
@@ -104,7 +103,7 @@ function App() {
                 )
               }
             />
-            <Route path='/*' element={<Navigate to={"/"} />} />
+            <Route path='/*' element={<Navigate to={'/'} />} />
           </Routes>
         </Router>
         <Copyright />
