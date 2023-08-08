@@ -107,7 +107,9 @@ const SignInForm = ({onLogInSuccess}) => {
           onLogInSuccess(returnedUser);
       })
       .catch(error =>{
-          console.log(error.response.data);
+        //   console.log(error.response.data);
+        const errorMessage = error.response.data;
+        setErrorMessage(errorMessage);
       });
   };
 

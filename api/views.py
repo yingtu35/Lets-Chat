@@ -32,9 +32,9 @@ def google_login():
         # find user with this email
         user = User.query.filter(User.email == email).first()
         if not user:
-            return Response("invalid username or password", status=404)
+            return Response("Invalid username or password", status=404)
         if user.google_sub and user.google_sub != sub:
-            return Response("invalid username or password", status=404)
+            return Response("Invalid username or password", status=404)
         if not user.google_sub:
             user.google_sub = sub
             db.session.commit()
@@ -44,7 +44,7 @@ def google_login():
         return user
     except:
         print("Google sign in verification failed")
-        return Response("invalid username or password", status=404)
+        return Response("Invalid username or password", status=404)
     
 @api_blueprints.route('/session', methods=["POST"])
 def signin():
@@ -85,7 +85,7 @@ def signup():
     birthday = None if birthday == "" else birthday
     
     if not username or not password or not email:
-         return Response("invalid data form", status=400) 
+         return Response("Invalid data form", status=400) 
     
     queryset = User.query.filter(User.email == email).first()
     if queryset:
@@ -171,9 +171,11 @@ def create_room():
         # ! Should user be kicked out of the room? what if user is the host of the room
         return Response(f"User already has a room {user.rid}. Please signin again", status=400)
 
+    capacity = data.get("capacity")
+
     new_room = Room(name=room,
                     num_users=0,
-                    capacity=16, 
+                    capacity=capacity, 
                     host_uid=user.uid)
     db.session.add(new_room)
     db.session.commit()
@@ -250,6 +252,7 @@ def room_join(username):
     room = room.serialize()
     return room
 
+# TODO: room rid and num_users can get unsync with the user data
 @api_blueprints.route("/rooms/<string:username>", methods=['DELETE'])
 def room_leave(username):
     login_username = session.get("username")

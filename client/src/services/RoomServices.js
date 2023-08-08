@@ -5,10 +5,11 @@ const getUserRoom = (username) => {
     return request.then(response => response.data);
 };
 
-const createRoom = (username, roomName) => {
+const createRoom = (username, roomName, roomCapacity) => {
     const roomInfo = {
         username: username,
-        room: roomName
+        room: roomName,
+        capacity: roomCapacity
     };
 
     const request = axios.post('/api/rooms', roomInfo);

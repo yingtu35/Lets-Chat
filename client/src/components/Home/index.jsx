@@ -26,7 +26,7 @@ import UserServices from '../../services/UserServices';
 
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-const CreateRoom = ({ roomName, onRoomNameChange, handleCreateRoomClick }) => {
+const CreateRoom = ({ roomName, onRoomNameChange, roomCapacity, onRoomCapacityChange, handleCreateRoomClick }) => {
   const [open, setOpen] = useState(false);
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
@@ -66,7 +66,8 @@ const CreateRoom = ({ roomName, onRoomNameChange, handleCreateRoomClick }) => {
             aria-label="Capacity"
             min={2}
             max={16}
-            defaultValue={2}
+            defaultValue={roomCapacity}
+            onChange={onRoomCapacityChange}
             valueLabelDisplay="auto"
             valu
             step={1}
@@ -133,6 +134,7 @@ const Home = ({ onLogOutSuccess, onEnterRoomSuccess }) => {
   const user = useContext(UserContext);
   const [rooms, setRooms] = useState([]);
   const [roomName, setRoomName] = useState('');
+  const [roomCapacity, setRoomCapacity] = useState(2);
   const [users, setUsers] = useState([]);
   // const [roomPassword, setRoomPassword] = useState("");
   const [errorMsg, setError] = useState('');
@@ -150,12 +152,12 @@ const Home = ({ onLogOutSuccess, onEnterRoomSuccess }) => {
   };
 
   const homeRoomsStyle = {
-    border: '1px solid red',
+    // border: '1px solid red',
     flexGrow: 2,
   };
 
   const homeUsersStyle = {
-    border: '1px solid red',
+    // border: '1px solid red',
     flexGrow: 1,
   };
 
@@ -168,9 +170,9 @@ const Home = ({ onLogOutSuccess, onEnterRoomSuccess }) => {
       setError('Please enter a valid room name');
       return;
     }
-    RoomServices.createRoom(user.username, roomName)
+    RoomServices.createRoom(user.username, roomName, roomCapacity)
       .then((returnedRoom) => {
-        console.log(returnedRoom);
+        // console.log(returnedRoom);
         setRooms(rooms.concat(returnedRoom));
         onEnterRoomSuccess(returnedRoom);
         navigate('/room');
@@ -242,6 +244,7 @@ const Home = ({ onLogOutSuccess, onEnterRoomSuccess }) => {
   const getRooms = async () => {
     try {
       const returnedRooms = await RoomServices.getAllRooms();
+      console.log(returnedRooms);
       setRooms(returnedRooms);
     } catch (error) {
       console.log(error);
@@ -271,6 +274,8 @@ const Home = ({ onLogOutSuccess, onEnterRoomSuccess }) => {
     getInfo();
     return () => {};
   }, []);
+
+  // TODO: Avoid size shifting when switch to another page
   return (
     <Container maxWidth="lg" sx={homeContainerStyle}>
       <div style={homeRoomsStyle}>
@@ -299,7 +304,10 @@ const Home = ({ onLogOutSuccess, onEnterRoomSuccess }) => {
             <CreateRoom
               roomName={roomName}
               onRoomNameChange={(e) => setRoomName(e.target.value)}
+              roomCapacity={roomCapacity}
+              onRoomCapacityChange={(e) => setRoomCapacity(e.target.value)}
               handleCreateRoomClick={handleCreateRoomClick}
+
             />
             <Button
               variant="contained"
@@ -348,7 +356,7 @@ const Home = ({ onLogOutSuccess, onEnterRoomSuccess }) => {
           </Grid>
         </Grid>
         {/* <Typography>Users will be displayed here</Typography> */}
-        <Grid sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        <Grid sx={{ mx: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Users users={users} userQuery={debouncedUserQuery} />
         </Grid>
       </div>

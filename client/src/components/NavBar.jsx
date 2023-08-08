@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -26,6 +26,7 @@ const navButton = {
 };
 
 function ResponsiveAppBar({ user, onLogOutSuccess }) {
+  const navigate = useNavigate();
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -50,6 +51,7 @@ function ResponsiveAppBar({ user, onLogOutSuccess }) {
       .then((data) => {
         console.log(data);
         onLogOutSuccess();
+        navigate('/login');
       })
       .catch((error) => console.log(error));
   };
@@ -150,7 +152,7 @@ function ResponsiveAppBar({ user, onLogOutSuccess }) {
           </Box>
           {!user ? (
             <Link style={navButton} to={'/login'}>
-              <Button sx={{ my: 2, color: 'black', display: 'block', backgroundColor: 'lightgreen' }}>
+              <Button variant='contained' sx={{ my: 2, color: 'black', display: 'block', backgroundColor: 'lightgreen' }}>
                 Login
               </Button>
             </Link>
