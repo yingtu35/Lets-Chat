@@ -5,6 +5,7 @@ import SignServices from '../../services/SignServices';
 const SignInForm = ({onLogInSuccess}) => {
   const [username, setName] = useState('');
   const [password, setPwd] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [nameError, setNameError] = useState('');
   const [pwdError, setPwdError] = useState('');
   const [checkBox, setCheckBox] = useState(false);
@@ -65,9 +66,15 @@ const SignInForm = ({onLogInSuccess}) => {
   const handleSignInClick = async (e) => {
       e.preventDefault();
       // Check every input
-      const isValidName = Validation.validateUsername(username, setNameError);
-      const isValidPwd = Validation.validatePassword(password, setPwdError);
-      if (!isValidName || !isValidPwd) {
+      const validName = Validation.isRequired(username);
+      const validPwd = Validation.isRequired(password);
+      if (!validName) {
+        setNameError('Username is required');
+      }
+      if (!validPwd) {
+        setPwdError('Password is required');
+      }
+      if (!validName || !validPwd) {
           return;
       }
       isrememberMe();
@@ -79,13 +86,16 @@ const SignInForm = ({onLogInSuccess}) => {
               onLogInSuccess(returnedUser);
           })
           .catch(error =>{
-              console.log(error.response.data);
+            //   console.log(error.response.data);
+            const errorMessage = error.response.data;
+            setErrorMessage(errorMessage);
           });
   };
 
   const handleValueChange = (value, setValue, setValueError) => {
       setValue(value);
       setValueError('');
+      setErrorMessage('');
   };
 
   const handleCredentialResponse = (response) => {
@@ -141,6 +151,9 @@ const SignInForm = ({onLogInSuccess}) => {
           <form style={signInFormStyle}>
               <div style={{textAlign: 'center'}}>
                   <h4>Login</h4>
+              </div>
+              <div>
+                {errorMessage && <p style={{color: 'red'}}>{errorMessage}</p>}
               </div>
               <div>
                   <label htmlFor="signin_username">Username</label><br/>

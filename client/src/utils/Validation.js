@@ -68,6 +68,7 @@ const validateBirthday = (birthday, setBirthError) => {
 };
 
 export default {
+    isRequired,
     validateEmail,
     validateUsername,
     validatePassword,

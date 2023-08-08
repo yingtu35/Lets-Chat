@@ -52,14 +52,14 @@ def signin():
     username = data.get("username")
     password = data.get("password")
     if not username or not password:
-        return Response("invalid data form", status=400)
+        return Response("Invalid data form", status=400)
     
     user = User.query.filter(User.username == username).first()
     if not user:
-        return Response("invalid username or password", status=404)
+        return Response("Invalid username or password", status=404)
     
     if not verify_password(password, user.hashed_password): 
-        return Response("invalid username or password", status=404)
+        return Response("Invalid username or password", status=404)
     
     session["username"] = user.username
     user = user.serialize()
