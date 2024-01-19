@@ -19,8 +19,6 @@ const Rooms = ({ rooms, handleJoinRoomClick, roomQuery }) => {
   const handlePageChange = (event, page) => {
     setPageIndex(page - 1);
   };
-  // TODO: Use pagination for displaying a certain number of rooms in each page
-
   const roomsAfterFilter = rooms.filter((room) =>
     room.name.toLowerCase().includes(roomQuery.toLowerCase())
   );
@@ -50,7 +48,7 @@ const Rooms = ({ rooms, handleJoinRoomClick, roomQuery }) => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          border: '1px solid red',
+          // border: '1px solid red',
           //   position: 'absolute',
         }}
       >
