@@ -280,7 +280,7 @@ Project Link: [https://github.com/yingtu35/Lets-Chat](https://github.com/yingtu3
 [nvm-url]: https://github.com/nvm-sh/nvm
 [MUI.com]: https://img.shields.io/badge/MUI-007FFF?style=for-the-badge&logo=MUI&logoColor=C21325
 [MUI-url]: https://mui.com/
-[demo-url]: https://youtu.be/7ITpYW81BAs
+[demo-url]: https://youtu.be/sxBVm1fmXMI?si=QEmb5Bwd-dnhqkhz
 [google_API-url]: https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid
 [sqlalchemy-url]: https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
 [miniconda-url]: https://docs.conda.io/projects/miniconda/en/latest/
