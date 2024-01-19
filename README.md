@@ -31,7 +31,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/yingtu35/Lets-Chat">
-    <img src="assets/icon1.png" alt="Logo" width="300">
+    <img src="assets/login.png" alt="Logo" width="300">
   </a>
 
 <h3 align="center">Lets-Chat</h3>
@@ -83,13 +83,14 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+<div align="center">
+  <img src="assets/home.png" alt="product_image">
+</div>
 
 Lets-Chat is a web application built on React and Flask.
 
 Using WebSocket protocol, users can chat easily in chat rooms they create or from other users.
 
-**None issues: When using SQLite, creating room will direct to wrong room**
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -110,8 +111,10 @@ Using WebSocket protocol, users can chat easily in chat rooms they create or fro
 <!-- GETTING STARTED -->
 ## Getting Started
 
-**Currently there are issues related to [gsi](https://developers.google.com/identity/gsi/web/reference/js-reference#google.accounts.id.renderButton) so that the backend flask server cannot host the frontend production code.** 
+### Known Issues
+1. Currently there are issues related to [gsi](https://developers.google.com/identity/gsi/web/reference/js-reference#google.accounts.id.renderButton) so that the backend flask server cannot host the frontend production code.** 
 To test the application in development mode, you have to run the flask server and frontend as separated applications
+1. When using **SQLite** database, creating room will direct to wrong room**
 
 ### Prerequisites
 
@@ -172,6 +175,10 @@ To test the application in development mode, you have to run the flask server an
 Enjoy the short demo using ios simulator to see how Lets-Chat works.
 
 [Demo][demo-url]
+<div align="center">
+  <img src="assets/room.png" height="300" alt="product_image">
+</div>
+
 <!-- 
 [![Lets-Chat demo](images/video%20thumbnail.png)](http://www.youtube.com/watch?v=MnJX33HtIVE "Lets-Chat demo") -->
 
@@ -276,4 +283,5 @@ Project Link: [https://github.com/yingtu35/Lets-Chat](https://github.com/yingtu3
 [demo-url]: https://youtu.be/7ITpYW81BAs
 [google_API-url]: https://developers.google.com/identity/oauth2/web/guides/get-google-api-clientid
 [sqlalchemy-url]: https://flask-sqlalchemy.palletsprojects.com/en/2.x/config/
+[miniconda-url]: https://docs.conda.io/projects/miniconda/en/latest/
 
