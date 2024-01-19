@@ -1,9 +1,0 @@
-flask
-flask-socketIO
-flask_sqlalchemy
-sqlAlchemy
-evenlet
-passlib
-google-auth
-requests
-python-dotenv
